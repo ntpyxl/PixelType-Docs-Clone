@@ -1,23 +1,26 @@
-function format(commands) {
-  const editor = document.getElementById("editor");
-  editor.focus();
+const handleFormDirectory = "core/handleForms.php";
 
-  setTimeout(() => {
-    for (const [command, value] of commands) {
-      document.execCommand(command, false, value || null);
-    }
-  }, 0);
-}
+$('#accountRegistrationForm').on('submit', function(event){
+    event.preventDefault();
+    const formData = {
+        username: $('#usernameField').val(),
+        password: $('#passwordField').val(),
+        verifyPassword: $('#verifyPasswordField').val(),
+        firstname: $('#firstnameField').val(),
+        lastname: $('#lastnameField').val(),
+        accountRegistrationRequest: 1
+    };
 
-function saveDoc() {
-  const content = document.getElementById("editor").innerHTML;
-  localStorage.setItem("docContent", content);
-  alert("Document saved!");
-}
-
-window.onload = function () {
-  const saved = localStorage.getItem("docContent");
-  if (saved) {
-    document.getElementById("editor").innerHTML = saved;
-  }
-};
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: formData,
+        success: function(data) {
+            if(data.trim() == 0) {
+                window.location.href = "login.php";
+            } else {
+                
+            }
+        }
+    })
+})
