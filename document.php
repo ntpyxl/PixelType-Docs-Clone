@@ -1,9 +1,17 @@
+<?php
+require_once "core/functions.php";
+
+if(!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>PixelType Document</title>
 
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
         <link href="styles.css" rel="stylesheet">
@@ -11,24 +19,32 @@
         <link href="textStyles.css" rel="stylesheet">
     </head>
     <body class="bg-gray-700">
+        <!-- indescribable pile of garbage -->
         <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
-            <button onclick="window.location='index.php'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">
-                Homepage
-            </button>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
+                <div class="flex flex-wrap items-center space-x-2">
+                    <button onclick="window.location='index.php'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Homepage</button>
 
-            <div class="flex space-x-4">
-                <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">
-                    <span class="inline sm:hidden">History</span>
-                    <span class="hidden sm:inline">View History</span>
-                </button>
-                <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">
-                    <span class="inline sm:hidden">Access</span>
-                    <span class="hidden sm:inline">Manage Access</span>
-                </button>
+                <!-- title, and history and access button for desktop -->
+                    <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="hidden md:block outline-none focus:border-2 focus:border-blue-500 w-[40vw] rounded-xl bg-white ml-3 px-2 py-1 text-black">
+                </div>
+
+                <div class="md:flex space-x-2 justify-end hidden">
+                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
+                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button>
+                </div>
+
+                <!-- title, and history and access button for mobile -->
+                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="md:hidden block outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black">
+
+                <div class="flex space-x-2 mt-3 md:hidden">
+                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
+                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button>
+                </div>
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row space-y-4">
+        <div class="flex flex-col lg:flex-row">
             <div class="border-2 border-black bg-white lg:w-[816px] mx-auto">
                 <div id="toolbar">
                     <span class="ql-formats">
@@ -79,12 +95,12 @@
                     </span>
                 </div>
 
-                <div class="width-full h-[87vh]">
+                <div class="width-full h-[88vh]">
                     <div id="editor-container"></div>
                 </div>
             </div>
 
-            <div class="bg-gray-900 w-full lg:w-[30%] h-[92vh] mx-auto lg:mx-0 p-3">
+            <div class="bg-gray-900 w-full lg:w-[30%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3">
                 <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
                 <div class="border-2 border-black w-[98%] h-[80%] bg-gray-200 mx-auto p-2">
                     MESSAGES

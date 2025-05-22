@@ -48,7 +48,7 @@
 
     function getCreatedDocuments($pdo, $userId) {
         // entire row info is returned except for user_owner, and document contents which can be very long
-        $query = "SELECT document_id, title, date_created, last_updated FROM document WHERE user_owner = ?"; 
+        $query = "SELECT document_id, title, date_created, last_updated FROM document WHERE user_owner = ? ORDER BY last_updated DESC"; 
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$userId]);
         
@@ -90,10 +90,10 @@
         }
     }
 
-    function getUserInfoById($pdo, $user_id) {
+    function getUserInfoById($pdo, $userId) {
         $query = "SELECT * FROM users WHERE user_id = ?";
         $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute([$user_id]);
+        $executeQuery = $statement -> execute([$userId]);
         
         if($executeQuery) {
             return $statement -> fetch();
@@ -102,10 +102,22 @@
         }
     }
 
-    function getUserFullNameById($pdo, $user_id) {
+    function getUserFullNameById($pdo, $userId) {
         $query = "SELECT CONCAT(firstname, ' ', lastname) AS fullname FROM users WHERE user_id = ?";
         $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute([$user_id]);
+        $executeQuery = $statement -> execute([$userId]);
+        
+        if($executeQuery) {
+            return $statement -> fetch();
+        } else {
+            return "error";
+        }
+    }
+
+    function getDocumentTitle($pdo, $documentId) {
+        $query = "SELECT title FROM document WHERE document_id = ?";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$documentId]);
         
         if($executeQuery) {
             return $statement -> fetch();
