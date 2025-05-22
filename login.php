@@ -53,10 +53,7 @@ if(isset($_SESSION['user_id'])) {
     <?php if(isset($_GET['registerAccountSuccess'])): ?>
         <script>
             changeMessage("Successfully Registered Account!", "", 0);
-
-            const url = new URL(window.location);
-            url.searchParams.delete("registerAccountSuccess");
-            window.history.replaceState({}, document.title, url.pathname);
+            removeURLParameter("registerAccountSuccess")
         </script>
     <?php endif; ?>
     </body>

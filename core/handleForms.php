@@ -28,4 +28,11 @@
         $function = loginUser($pdo, $username, $password);
         echo $function;
     }
+
+    if(isset($_POST['newBlankDocumentRequest'])) {
+        $userOwner = $_POST['owner'];
+
+        $function = createBlankDocument($pdo, $userOwner);
+        echo json_encode($function);
+    }
 ?>

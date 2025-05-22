@@ -45,13 +45,14 @@ $('#userLoginForm').on('submit', function(event){
         password: $('#passwordField').val(),
         userLoginRequest: 1
     };
+
     $.ajax({
         type: "POST",
         url: handleFormDirectory,
         data: formData,
         success: function(data) {
             if(data.trim() == "loginSuccess") {
-                window.location.href = "index.php?loginSuccess=1"
+                window.location.href = "index.php?userLoginSuccess=1"
             } else if(data.trim() == "usernameNotExisting"){
                 changeMessage(
                     "Failed to Log In!",
@@ -72,7 +73,35 @@ $('#userLoginForm').on('submit', function(event){
     })
 })
 
-function changeMessage(title, message, type){
+function createNewDocument(user_id) {
+    const data = {
+        owner: user_id,
+        newBlankDocumentRequest: 1
+    };
+
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            const parsedData = JSON.parse(data);
+            if(parsedData[0].trim() == "blankDocumentCreated") {
+                link = "document.php?document_id=" + parsedData[1];
+                window.location.href = link;
+            } else {
+                changeMessage(
+                    "Failed to Create New Document!",
+                    parsedData[0].trim(),
+                    1);
+            }
+        }
+    })
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+function changeMessage(title, message, type) {
     const messageBox = $('#messageBox');
     messageBox.find('#title').text(title);
     messageBox.find('#message').text(message);
@@ -84,5 +113,23 @@ function changeMessage(title, message, type){
         messageBox.removeClass('bg-green-800');
         messageBox.addClass('bg-red-800');
     }
-    messageBox.removeClass('hidden');
+
+    if(message == "") {
+        messageBox.find('#message').addClass('hidden');
+    } else {
+        messageBox.find('#message').removeClass('hidden');
+    }
+
+    messageBox.removeClass('hidden')
+    if(type == 0) {
+        setTimeout(function() {
+            messageBox.fadeOut();
+        }, 5000);
+    }
+}
+
+function removeURLParameter(parameter) {
+    const url = new URL(window.location);
+    url.searchParams.delete(parameter);
+    window.history.replaceState({}, document.title, url.pathname);
 }

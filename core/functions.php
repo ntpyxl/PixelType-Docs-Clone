@@ -34,9 +34,33 @@
         }
     }
 
-    ///////////////////////////
-    ///////////////////////////
-    ///////////////////////////
+    function createBlankDocument($pdo, $userOwner) {
+        $query = "INSERT INTO document (user_owner) VALUES (?)";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$userOwner]);
+
+        if ($executeQuery) {
+            return ["blankDocumentCreated", $pdo -> lastInsertId()];
+        } else {
+            return ["error"];
+        }
+    }
+
+    function getCreatedDocuments($pdo, $userId) {
+        // entire row info is returned except for user_owner, and document contents which can be very long
+        $query = "SELECT document_id, title, date_created, last_updated FROM document WHERE user_owner = ?"; 
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$userId]);
+        
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
     function checkUsernameExistence($pdo, $username){
         $query = "SELECT * FROM user_accounts WHERE username = ?";
@@ -74,7 +98,19 @@
         if($executeQuery) {
             return $statement -> fetch();
         } else {
-            return "failed";
+            return "error";
+        }
+    }
+
+    function getUserFullNameById($pdo, $user_id) {
+        $query = "SELECT CONCAT(firstname, ' ', lastname) AS fullname FROM users WHERE user_id = ?";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$user_id]);
+        
+        if($executeQuery) {
+            return $statement -> fetch();
+        } else {
+            return "error";
         }
     }
 ?>
