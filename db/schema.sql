@@ -3,7 +3,7 @@ CREATE TABLE users (
     firstname VARCHAR(128) NOT NULL,
     lastname VARCHAR(128) NOT NULL,
     user_role ENUM('REGULAR', 'ADMIN') NOT NULL,
-    is_suspended BOOLEAN NOT NULL DEFAULT 0,
+    is_suspended BOOLEAN DEFAULT 0 NOT NULL,
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE user_accounts (
 
 CREATE TABLE document (
     document_id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(256) NOT NULL DEFAULT 'Untitled Document',
+    title VARCHAR(256) DEFAULT 'Untitled Document' NOT NULL,
     user_owner INT NOT NULL,
     content LONGTEXT,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,7 +31,7 @@ CREATE TABLE user_shared_access (
 CREATE TABLE document_messages (
     on_document_id INT NOT NULL,
     sender_id INT NOT NULL,
-    content TEXT,
+    content TEXT NOT NULL,
     date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
