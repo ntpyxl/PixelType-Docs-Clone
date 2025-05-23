@@ -1,6 +1,8 @@
 const handleFormDirectory = "core/handleForms.php";
+const secondsFromLastInputBeforeSave = 2000; // 1 second = 1000 millisecond
+const documentId = new URLSearchParams(window.location.search).get("document_id");
 
-$('#accountRegistrationForm').on('submit', function(event){
+$('#accountRegistrationForm').on('submit', function(event) {
     event.preventDefault();
     const formData = {
         username: $('#usernameField').val(),
@@ -38,7 +40,7 @@ $('#accountRegistrationForm').on('submit', function(event){
     })
 })
 
-$('#userLoginForm').on('submit', function(event){
+$('#userLoginForm').on('submit', function(event) {
     event.preventDefault();
     const formData = {
         username: $('#usernameField').val(),
@@ -98,6 +100,52 @@ function createNewDocument(user_id) {
     })
 }
 
+let saveDocTitleTimeout;
+$('.documentTitle').on('input', function(event) {
+    event.preventDefault();
+
+    clearTimeout(saveDocTitleTimeout);
+    saveDocTitleTimeout = setTimeout(function() {
+        const data = {
+            document_id: documentId,
+            content: $('.documentTitle').val(),
+            saveDocumentTitleRequest: 1
+        };
+
+        $.ajax({
+            type: "POST",
+            url: handleFormDirectory,
+            data: data,
+            success: function() {
+                console.log("Document title saved");
+            },
+            error: function(xhr) {
+                console.error("Document title save failed:", xhr.responseText);
+            }
+        });
+    }, secondsFromLastInputBeforeSave);
+})
+
+// document content autosave is in quillScript.js
+
+$('#searchUserField').on('input', function() {
+    const data = {
+        keyword: $('#searchUserField').val(),
+        searchUserRequest: 1
+    }
+
+    if(data.keyword != "") {
+        $.ajax({
+            type: "POST",
+            url: handleFormDirectory,
+            data: data,
+            success: function(data) {
+                $('#searchResults').html(data);
+            }
+        })
+    }
+})
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
@@ -132,4 +180,14 @@ function removeURLParameter(parameter) {
     const url = new URL(window.location);
     url.searchParams.delete(parameter);
     window.history.replaceState({}, document.title, url.pathname);
+}
+
+function openDocumentAccessManagementModal() {
+    $('#manageDocumentAccess').removeClass('hidden');
+    $('body').addClass('overflow-hidden');
+}
+
+function closeDocumentAccessManagementModal() {
+    $('#manageDocumentAccess').addClass('hidden');
+    $('body').removeClass('overflow-hidden');
 }

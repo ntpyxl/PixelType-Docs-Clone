@@ -9,13 +9,36 @@ const quill = new Quill('#editor-container', {
     theme: 'snow'
 });
 
-document.querySelector('.ql-save').addEventListener('click', () => {
-    const content = quill.getContents();
-    localStorage.setItem('quill-doc', JSON.stringify(content));
-    alert("Document saved!");
+let isInitializing = true;
+
+const rawContent = document.getElementById('loadedDocumentContentData').innerText;
+quill.root.innerHTML = rawContent;
+
+let saveDocContentTimeout;
+quill.on('text-change', function() {
+    if(isInitializing) {
+        return;
+    }
+
+    clearTimeout(saveDocContentTimeout);
+    saveDocContentTimeout = setTimeout(function() {
+        const formData = {
+            document_id: documentId,
+            content: quill.root.innerHTML,
+            saveDocumentContentRequest: 1
+        };
+
+        $.ajax({
+            type: "POST",
+            url: handleFormDirectory,
+            data: formData,
+            success: function() {
+                console.log("Document content saved");
+            }
+        });
+    }, secondsFromLastInputBeforeSave);
 });
 
-const saved = localStorage.getItem('quill-doc');
-if (saved) {
-    quill.setContents(JSON.parse(saved));
-}
+setTimeout(function() {
+    isInitializing = false;
+}, 100);

@@ -59,6 +59,38 @@
         }
     }
 
+    function loadDocumentContents($pdo, $documentId) {
+        $query = "SELECT content FROM document WHERE document_id = ?";
+        $statement = $pdo -> prepare($query);
+        $statement -> execute([$documentId]);
+
+        return $statement -> fetch();
+    }
+
+    function saveDocumentTitle($pdo, $documentId, $title) {
+        $query = "UPDATE document SET title = ? WHERE document_id = ?";
+        $statement = $pdo -> prepare($query);
+        $statement -> execute([$title, $documentId]);
+    }
+
+    function saveDocumentContents($pdo, $documentId, $content) {
+        $query = "UPDATE document SET content = ? WHERE document_id = ?";
+        $statement = $pdo -> prepare($query);
+        $statement -> execute([$content, $documentId]);
+    }
+
+    function searchUserByName($pdo, $keyword) {
+        $query = "SELECT CONCAT(firstname, ' ', lastname) AS fullname FROM users WHERE CONCAT(firstname, ' ', lastname) LIKE ? ORDER BY fullname ASC"; 
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute(["%".$keyword."%"]);
+        
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 

@@ -35,4 +35,33 @@
         $function = createBlankDocument($pdo, $userOwner);
         echo json_encode($function);
     }
+
+    if(isset($_POST['searchUserRequest'])) {
+        $keyword = $_POST['keyword'];
+
+        $function = searchUserByName($pdo, $keyword);
+
+        foreach($function as $user) {
+            echo "
+                <div class='flex flex-row bg-white hover:bg-gray-200 px-3 py-1 justify-between text-black'>
+                    <h5 class='font-semibold text-lg'>" . $user['fullname'] . "</h5>
+                    <button onclick='' class='border border-black rounded-2xl px-3 py-1 text-lg hover:cursor-pointer hover:scale-105 hover:bg-cyan-300 duration-200'>Share</button>
+                </div>
+            ";
+        }
+    }
+
+    if(isset($_POST['saveDocumentContentRequest'])) {
+        $documentId = $_POST['document_id'];
+        $content = $_POST['content'];
+
+        saveDocumentContents($pdo, $documentId, $content);
+    }
+
+    if(isset($_POST['saveDocumentTitleRequest'])) {
+        $documentId = $_POST['document_id'];
+        $title = $_POST['content'];
+
+        saveDocumentTitle($pdo, $documentId, $title);
+    }
 ?>
