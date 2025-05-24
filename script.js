@@ -1,6 +1,7 @@
 const handleFormDirectory = "core/handleForms.php";
 const secondsFromLastInputBeforeSave = 2000; // 1 second = 1000 millisecond
-const documentId = new URLSearchParams(window.location.search).get("document_id");
+const secondsBeforeNotificationFadeOut = 5000;
+const documentId = parseInt(new URLSearchParams(window.location.search).get("document_id"));
 
 $('#accountRegistrationForm').on('submit', function(event) {
     event.preventDefault();
@@ -117,7 +118,9 @@ $('.documentTitle').on('input', function(event) {
             url: handleFormDirectory,
             data: data,
             success: function() {
-                console.log("Document title saved");
+                const documentSavedAlert = $('#documentSavedAlert');
+                documentSavedAlert.removeClass('hidden');
+                fadeOutNotification(documentSavedAlert);      
             },
             error: function(xhr) {
                 console.error("Document title save failed:", xhr.responseText);
@@ -129,21 +132,63 @@ $('.documentTitle').on('input', function(event) {
 // document content autosave is in quillScript.js
 
 $('#searchUserField').on('input', function() {
+    updateSearchedUsers();
+})
+
+function shareDocumentToUser(userId) {
     const data = {
-        keyword: $('#searchUserField').val(),
-        searchUserRequest: 1
+        userId: userId,
+        documentId: documentId,
+        shareDocumentToUserRequest: 1
     }
 
-    if(data.keyword != "") {
-        $.ajax({
-            type: "POST",
-            url: handleFormDirectory,
-            data: data,
-            success: function(data) {
-                $('#searchResults').html(data);
-            }
-        })
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            updateSharedUsers()
+            updateSearchedUsers();
+        }
+    })
+}
+
+function revokeDocumentToUser(userId) {
+    const data = {
+        userId: userId,
+        documentId: documentId,
+        revokeDocumentToUserRequest: 1
     }
+
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            updateSharedUsers()
+            updateSearchedUsers();
+        }
+    })
+}
+
+$('#usersWithDocumentAccess').on('change', '.sharedUserControlLevel', function() {
+    const newAccessLevel = $(this).val();
+    const userId = $(this).data('user-id');
+
+    $.ajax({
+        url: handleFormDirectory,
+        type: 'POST',
+        data: {
+            user_id: userId,
+            document_id: documentId,
+            access_level: newAccessLevel,
+            updateUserAccessLevelRequest: 1
+        },
+        success: function(response) {
+            console.log('Access level updated');
+        }
+    });
+    
 })
 
 ////////////////////////////////////////////////
@@ -170,9 +215,7 @@ function changeMessage(title, message, type) {
 
     messageBox.removeClass('hidden')
     if(type == 0) {
-        setTimeout(function() {
-            messageBox.fadeOut();
-        }, 5000);
+        fadeOutNotification(messageBox);
     }
 }
 
@@ -190,4 +233,47 @@ function openDocumentAccessManagementModal() {
 function closeDocumentAccessManagementModal() {
     $('#manageDocumentAccess').addClass('hidden');
     $('body').removeClass('overflow-hidden');
+}
+
+function updateSharedUsers() {
+    const data = {
+        document_id: documentId,
+        sharedUsersRequest: 1
+    }
+    
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            $('#usersWithDocumentAccess').html(data);
+        }
+    })
+}
+
+function updateSearchedUsers() {
+    const data = {
+        keyword: $('#searchUserField').val(),
+        searchUserRequest: 1
+    }
+
+    if(data.keyword != "") {
+        $.ajax({
+            type: "POST",
+            url: handleFormDirectory,
+            data: data,
+            success: function(data) {
+                $('#searchResults').html(data);
+            }
+        })
+    }
+}
+
+function fadeOutNotification(item) {
+    setTimeout(function() {
+        item.fadeOut(function() {
+            $(this).css("display", "");
+            $(this).addClass('hidden');
+        });
+    }, secondsBeforeNotificationFadeOut);
 }

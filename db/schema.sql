@@ -25,7 +25,8 @@ CREATE TABLE document (
 CREATE TABLE user_shared_access (
     user_id INT NOT NULL,
     document_id INT NOT NULL,
-    can_edit BOOLEAN NOT NULL
+    can_edit BOOLEAN DEFAULT 0 NOT NULL,
+    date_shared TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE document_messages (

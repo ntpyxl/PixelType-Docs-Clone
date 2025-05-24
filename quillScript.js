@@ -33,7 +33,9 @@ quill.on('text-change', function() {
             url: handleFormDirectory,
             data: formData,
             success: function() {
-                console.log("Document content saved");
+                const documentSavedAlert = $('#documentSavedAlert');
+                documentSavedAlert.removeClass('hidden');
+                fadeOutNotification(documentSavedAlert);
             }
         });
     }, secondsFromLastInputBeforeSave);
