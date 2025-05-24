@@ -158,6 +158,30 @@
         $statement -> execute([$accessLevel, $userId, $documentId]);
     }
 
+    function sendMessage($pdo, $userId, $documentId, $message) {
+        $query = "INSERT INTO document_messages (on_document_id, sender_id, content) VALUES (?, ?, ?)";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$documentId, $userId, $message]);
+
+        if($executeQuery) {
+            return "messageSent";
+        } else {
+            return "error";
+        }
+    }
+
+    function getDocumentMessages($pdo, $documentId) {
+        $query = "SELECT dm.sender_id, CONCAT(users.firstname, ' ', users.lastname) AS fullname, dm.content, dm.date_sent FROM document_messages AS dm INNER JOIN users ON dm.sender_id = users.user_id WHERE on_document_id = ? ORDER BY date_sent ASC";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$documentId]);
+
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 

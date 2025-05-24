@@ -38,7 +38,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
     </head>
     <body class="bg-gray-700">
 
-        <!-- indescribable pile of garbage   TODO: FIX LATER -->
+        <!-- indescribable pile of garbage TODO: FIX LATER -->
         <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
                 <div class="flex flex-wrap items-center space-x-2">
@@ -114,25 +114,27 @@ if(!$isDocumentOwner && !$isDocumentShared) {
                 </div>
 
                 <div id="loadedDocumentContentData" class="hidden"><?php echo htmlspecialchars(loadDocumentContents($pdo, $_GET['document_id'])['content']); ?></div>
-                <div class="width-full h-[calc(89vh_-_5px)]">
+                <div class="width-full h-[calc(89vh_-_5px)]"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
                     <div id="editor-container"></div>
                 </div>
             </div>
 
             <!-- CHATBOX -->
-            <div id="chatbox" class="bg-gray-900 w-full lg:w-[30%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3 space-y-2 hidden">
+            <div id="chatbox" class="bg-gray-900 w-full lg:w-[25%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3 space-y-2 hidden"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
                 <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
-                <div class="w-[98%] h-[78%] bg-gray-200 mx-auto p-2">
-                    MESSAGES
+                <div id="chatboxMessages" class="flex flex-col w-[98%] h-[78%] bg-gray-200 mx-auto p-2 overflow-y-auto">
                 </div>
 
-                <div class="w-[98%] h-[10%] bg-white mx-auto p-2">
-                    REPLY
-                </div>
+                <form id="chatboxMessageBox">
+                    <div class="w-[98%] h-[10%] mx-auto">
+                        <textarea id="messageField" placeholder="Type your message here..." class="outline-none border-2 border-transparent w-full h-full bg-white p-2 resize-none focus:border-blue-500"></textarea>
+                    </div>
 
-                <div class="flex">
-                    <button onclick="" class="w-[94%] border border-white rounded-2xl mx-auto mt-2 px-4 py-1 text-lg text-white hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">SEND</button>
-                </div>
+                    <div class="flex">
+                        <input type="hidden" id="data_userId" value="<?php echo $_SESSION['user_id'] ?>">
+                        <input type="submit" value="Send" class="w-[94%] border border-white rounded-2xl mx-auto mt-2 px-4 py-1 text-lg text-white hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -143,14 +145,9 @@ if(!$isDocumentOwner && !$isDocumentShared) {
                 <h3 class="mt-5 text-2xl font-semibold">USERS WITH ACCESS</h3>
                 <div id="usersWithDocumentAccess" class="h-[280px] mt-2 mb-3 overflow-auto">
                     <!-- Shared user cards are in core/handleForms.php line 48 -->
-                    <script>
-                        window.onload = function() {
-                            updateSharedUsers();
-                        }
-                    </script>
                 </div>
                 
-                <input type="text" id="searchUserField" placeholder="Add a user!" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-xl bg-white px-3 py-1 text-black">
+                <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-xl bg-white px-3 py-1 text-black">
                 <div id="searchResults" class="h-[240px] md:h-[320px] m-2 overflow-auto">
                     <!-- Searched user cards are in core/handleForms.php line 71 -->
                 </div>

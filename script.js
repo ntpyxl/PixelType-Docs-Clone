@@ -135,6 +135,24 @@ $('#searchUserField').on('input', function() {
     updateSearchedUsers();
 })
 
+function updateSearchedUsers() {
+    const data = {
+        keyword: $('#searchUserField').val(),
+        searchUserRequest: 1
+    }
+
+    if(data.keyword != "") {
+        $.ajax({
+            type: "POST",
+            url: handleFormDirectory,
+            data: data,
+            success: function(data) {
+                $('#searchResults').html(data);
+            }
+        })
+    }
+}
+
 function shareDocumentToUser(userId) {
     const data = {
         userId: userId,
@@ -147,8 +165,24 @@ function shareDocumentToUser(userId) {
         url: handleFormDirectory,
         data: data,
         success: function(data) {
-            updateSharedUsers()
+            updateSharedUsers();
             updateSearchedUsers();
+        }
+    })
+}
+
+function updateSharedUsers() {
+    const data = {
+        document_id: documentId,
+        sharedUsersRequest: 1
+    }
+    
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            $('#usersWithDocumentAccess').html(data);
         }
     })
 }
@@ -165,7 +199,7 @@ function revokeDocumentToUser(userId) {
         url: handleFormDirectory,
         data: data,
         success: function(data) {
-            updateSharedUsers()
+            updateSharedUsers();
             updateSearchedUsers();
         }
     })
@@ -190,6 +224,43 @@ $('#usersWithDocumentAccess').on('change', '.sharedUserControlLevel', function()
     });
     
 })
+
+$('#chatboxMessageBox').on('submit', function(event) {
+    event.preventDefault();
+    const formData = {
+        message: $('#messageField').val(),
+        user_id: $('#data_userId').val(),
+        document_id: documentId,
+        sendMessageRequest: 1
+    }
+
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: formData,
+        success: function(data) {
+            $('#messageField').val('');
+            updateChatboxMessages();
+        }
+    })
+})
+
+function updateChatboxMessages() {
+    const data = {
+        document_id: documentId,
+        chatboxMessagesRequest: 1
+    }
+
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: data,
+        success: function(data) {
+            $('#chatboxMessages').html(data);
+            scrollChatboxToBottom();
+        }
+    })
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -235,40 +306,6 @@ function closeDocumentAccessManagementModal() {
     $('body').removeClass('overflow-hidden');
 }
 
-function updateSharedUsers() {
-    const data = {
-        document_id: documentId,
-        sharedUsersRequest: 1
-    }
-    
-    $.ajax({
-        type: "POST",
-        url: handleFormDirectory,
-        data: data,
-        success: function(data) {
-            $('#usersWithDocumentAccess').html(data);
-        }
-    })
-}
-
-function updateSearchedUsers() {
-    const data = {
-        keyword: $('#searchUserField').val(),
-        searchUserRequest: 1
-    }
-
-    if(data.keyword != "") {
-        $.ajax({
-            type: "POST",
-            url: handleFormDirectory,
-            data: data,
-            success: function(data) {
-                $('#searchResults').html(data);
-            }
-        })
-    }
-}
-
 function fadeOutNotification(item) {
     setTimeout(function() {
         item.fadeOut(function() {
@@ -277,3 +314,14 @@ function fadeOutNotification(item) {
         });
     }, secondsBeforeNotificationFadeOut);
 }
+
+function scrollChatboxToBottom() {
+    const chatbox = $('#chatbox').find('#chatboxMessages');
+    chatbox.scrollTop(chatbox[0].scrollHeight);
+}
+
+// initial load on webpage load
+$(document).ready(function() {
+    updateChatboxMessages();
+    updateSharedUsers();
+});

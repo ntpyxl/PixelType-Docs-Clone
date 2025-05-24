@@ -40,15 +40,16 @@
         $document_id = $_POST['document_id'];
 
         $function = getUsersWithDocAccess($pdo, $document_id);
-
         foreach($function as $user) {
             $userId = $user['user_id'];
             $fullname = $user['fullname'];
+            $dateShared = $user['date_shared'];
             $userAccessLevel = getUserDocAccessLevel($pdo, $userId, $document_id)['can_edit'];
             echo "
                 <div class='flex flex-row bg-white hover:bg-gray-200 min-h-[70px] px-3 py-1 items-center justify-between text-black'>
                     <h5 class='font-semibold text-base md:text-lg'>$fullname</h5>
                     <div class='w-[30%] md:w-fit items-center md:items-start space-x-0 md:space-x-2 space-y-2 md:space-y-0 py-2 md:py-0'>
+                        <p class='hidden md:block text-sm text-gray-500'>Shared on: $dateShared</p>
                         <select class='outline-none border border-black rounded-xl bg-white focus:bg-cyan-300 px-2 py-1 hover:cursor-pointer sharedUserControlLevel' data-user-id='$userId'>
                             <option value='viewer' " . ($userAccessLevel == 0 ? 'selected' : '') . ">Viewer</option>
                             <option value='editor' " . ($userAccessLevel == 1 ? 'selected' : '') . ">Editor</option>
@@ -64,7 +65,6 @@
         $keyword = $_POST['keyword'];
 
         $function = searchUserToShareByName($pdo, $keyword);
-
         foreach($function as $user) {
             $userId = $user['user_id'];
             $fullname = $user['fullname'];
@@ -111,5 +111,43 @@
         $accessLevel = $_POST['access_level'] == 'editor' ? 1 : 0;
 
         updateUserAccessLevel($pdo, $userId, $documentId, $accessLevel);
+    }
+
+    if(isset($_POST['sendMessageRequest'])) {
+        $message = $_POST['message'];
+        $userId = $_POST['user_id'];
+        $documentId = $_POST['document_id'];
+
+        $function = sendMessage($pdo, $userId, $documentId, $message);
+    }
+
+    if(isset($_POST['chatboxMessagesRequest'])) {
+        $documentId = $_POST['document_id'];
+
+        $function = getDocumentMessages($pdo, $documentId);
+        foreach($function as $message) {
+            $senderId = $message['sender_id'];
+            $fullname = $message['fullname'];
+            $content = $message['content'];
+            $dateSent = $message['date_sent'];
+
+            if($_SESSION['user_id'] == $senderId) {
+                echo "
+                    <div class='flex flex-col my-4 items-end messageBox'>
+                        <p class='text-sm w-fit max-w-[70%] mx-1 break-words'>You</p>
+                        <div class='border-2 border-black w-fit max-w-[75%] bg-cyan-300 rounded-xl rounded-br-none px-2 py-1 break-words'>$content</div>
+                        <p class='w-fit text-xs text-gray-600'>$dateSent</p>
+                    </div>
+                ";
+            } else {
+                echo "
+                    <div class='flex flex-col my-4 items-start messageBox'>
+                        <p class='text-sm w-fit max-w-[70%] mx-1 break-words'>$fullname</p>
+                        <div class='border-2 border-black w-fit max-w-[75%] bg-white rounded-xl rounded-bl-none mr-auto px-2 py-1 break-words'>$content</div>
+                        <p class='w-fit text-xs text-gray-600 mr-auto'>$dateSent</p>
+                    </div>
+                ";
+            }
+        }
     }
 ?>
