@@ -44,13 +44,14 @@
         foreach($function as $user) {
             $userId = $user['user_id'];
             $fullname = $user['fullname'];
+            $userAccessLevel = getUserDocAccessLevel($pdo, $userId, $document_id)['can_edit'];
             echo "
                 <div class='flex flex-row bg-white hover:bg-gray-200 min-h-[70px] px-3 py-1 items-center justify-between text-black'>
                     <h5 class='font-semibold text-base md:text-lg'>$fullname</h5>
                     <div class='w-[30%] md:w-fit items-center md:items-start space-x-0 md:space-x-2 space-y-2 md:space-y-0 py-2 md:py-0'>
                         <select class='outline-none border border-black rounded-xl bg-white focus:bg-cyan-300 px-2 py-1 hover:cursor-pointer sharedUserControlLevel' data-user-id='$userId'>
-                            <option value='viewer' " . (getUserDocAccessLevel($pdo, $userId, $document_id)['can_edit'] == 0 ? 'selected' : '') . ">Viewer</option>
-                            <option value='editor' " . (getUserDocAccessLevel($pdo, $userId, $document_id)['can_edit'] == 1 ? 'selected' : '') . ">Editor</option>
+                            <option value='viewer' " . ($userAccessLevel == 0 ? 'selected' : '') . ">Viewer</option>
+                            <option value='editor' " . ($userAccessLevel == 1 ? 'selected' : '') . ">Editor</option>
                         </select>
                         <button onclick='revokeDocumentToUser($userId)' class='border border-black rounded-2xl bg-red-300 px-4 py-1 text-base md:text-lg hover:cursor-pointer hover:scale-105 hover:bg-red-500 duration-200'>Remove</button>
                     </div>

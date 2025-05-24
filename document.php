@@ -45,7 +45,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
                     <button onclick="window.location='index.php'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Homepage</button>
 
                     <!-- title, and history and access button for desktop -->
-                    <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="hidden md:block outline-none focus:border-2 focus:border-blue-500 w-[40vw] rounded-xl bg-white ml-3 px-2 py-1 text-black documentTitle">
+                    <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="hidden md:block outline-none focus:border-2 focus:border-blue-500 w-[40vw] rounded-xl bg-white ml-3 px-2 py-1 text-black documentTitle" readonly>
 
                     <h4 id="documentSavedAlert" class="rounded-3xl bg-gray-700 px-5 py-1 hidden">Saved</h4>
                 </div>
@@ -56,7 +56,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
                 </div>
 
                 <!-- title, and history and access button for mobile -->
-                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="md:hidden block outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black documentTitle">
+                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="md:hidden block outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black documentTitle" readonly>
 
                 <div class="flex space-x-2 mt-3 docManagementButtons invisible md:hidden">
                     <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
@@ -169,6 +169,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
             <script>
                 $('.docManagementButtons').removeClass('invisible');
                 $('#chatbox').removeClass('hidden');
+                $('.documentTitle').removeAttr('readonly');
             </script>
         <?php
         } else {
