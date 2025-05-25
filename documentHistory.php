@@ -6,6 +6,7 @@ if(!isset($_SESSION['user_id'])) {
 }
 
 $isDocumentOwner = false;
+$isAdmin = false;
 $canEdit = false;
 if($_SESSION['user_id'] == getDocumentOwner($pdo, $_GET['document_id'])['user_owner']) {
     $isDocumentOwner = true;
@@ -13,8 +14,11 @@ if($_SESSION['user_id'] == getDocumentOwner($pdo, $_GET['document_id'])['user_ow
 if($_SESSION['user_role'] == "ADMIN") {
     $isAdmin = true;
 }
+if(getUserDocAccessLevel($pdo, $_SESSION['user_id'], $_GET['document_id'])['can_edit'] == 1) {
+        $canEdit = true;
+    }
 
-if(!$isDocumentOwner && !$isAdmin) {
+if(!$isDocumentOwner && !$isAdmin && !$canEdit) {
     header("Location: document.php?document_id=" . $_GET['document_id']);
 }
 ?>
@@ -30,18 +34,13 @@ if(!$isDocumentOwner && !$isAdmin) {
         <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     </head>
     <body class="bg-gray-700">
-        <!-- indescribable pile of garbage TODO: REFACTOR LATER -->
         <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
-                <div class="flex flex-wrap items-center space-x-2">
+                <div class="flex flex-col md:flex-row md:flex-wrap md:items-center md:space-x-2 space-y-2 md:space-y-0">
                     <button onclick="window.location='document.php?document_id=<?php echo $_GET['document_id'] ?>'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Return</button>
 
-                    <!-- title for desktop -->
-                    <h3 class="hidden md:block text-xl font-semibold text-white ml-3 px-2 py-1"><?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?> Edit History</h3>
+                    <h3 class="w-full md:w-[40vw] text-xl font-semibold text-white ml-0 md:ml-3 mt-1 md:mt-0 px-2 py-1"><?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?> History</h3>
                 </div>
-
-                <!-- title for mobile -->
-                <h3 class="block md:hidden text-xl font-semibold text-white mt-3 p-2"><?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?> Edit History</h3>
             </div>
         </div>
 

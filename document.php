@@ -22,7 +22,7 @@ if($_SESSION['user_role'] == "ADMIN") {
     $isAdmin = true;
 }
 
-if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
+if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
     header("Location: index.php?documentAccessRestricted=1");
 }
 ?>
@@ -41,30 +41,29 @@ if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
         <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     </head>
     <body class="bg-gray-700">
-
-        <!-- indescribable pile of garbage TODO: REFACTOR LATER -->
         <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
-                <div class="flex flex-wrap items-center space-x-2">
+                <div class="flex flex-col md:flex-row md:flex-wrap md:items-center md:space-x-2 space-y-2 md:space-y-0">
                     <button onclick="window.location='index.php'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Homepage</button>
 
-                    <!-- title, and history and access button for desktop -->
-                    <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="hidden md:block outline-none focus:border-2 focus:border-blue-500 w-[40vw] rounded-xl bg-white ml-3 px-2 py-1 text-black documentTitle" readonly>
+                    <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="outline-none focus:border-2 focus:border-blue-500 w-full md:w-[40vw] rounded-xl bg-white ml-0 md:ml-3 mt-1 md:mt-0 px-2 py-1 text-black documentTitle" <?php if(!($isDocumentOwner || $canEdit)) {echo "readonly";} ?>>
 
-                    <h4 id="documentSavedAlert" class="rounded-3xl bg-gray-700 px-5 py-1 hidden">Saved</h4>
+                    <h4 id="documentSavedAlert" class="rounded-3xl bg-gray-700 px-5 py-1 text-center hidden">Saved</h4>
                 </div>
 
-                <div class="md:flex space-x-2 justify-end docManagementButtons invisible hidden">
-                    <button onclick="window.location='documentHistory.php?document_id=<?php echo $_GET['document_id'] ?>'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button>
-                </div>
-
-                <!-- title, and history and access button for mobile -->
-                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="block md:hidden outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black documentTitle" readonly>
-
-                <div class="flex space-x-2 mt-3 docManagementButtons invisible md:hidden">
-                    <button onclick="window.location='documentHistory.php?document_id=<?php echo $_GET['document_id'] ?>'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button>
+                <div class="flex flex-row space-x-2 md:justify-end">
+                    <?php
+                    if($isDocumentOwner || $isAdmin || $canEdit) {
+                    ?>
+                        <button onclick="window.location='documentHistory.php?document_id=<?php echo $_GET['document_id'] ?>'" class="flex-1 md:flex-none border border-white rounded-2xl px-4 py-1 text-lg text-center hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
+                    <?php
+                    }
+                    if($isDocumentOwner) {
+                    ?>
+                        <button onclick="openDocumentAccessManagementModal()" class="flex-1 md:flex-none border border-white rounded-2xl px-4 py-1 text-lg text-center hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button>
+                    <?php
+                    }
+                    ?>
                 </div>
             </div>
         </div>
@@ -124,22 +123,33 @@ if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
             </div>
 
             <!-- CHATBOX -->
-            <div id="chatbox" class="bg-gray-900 w-full lg:w-[25%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3 space-y-2 hidden"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
-                <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
-                <div id="chatboxMessages" class="flex flex-col w-[98%] h-[78%] bg-gray-200 mx-auto p-2 overflow-y-auto">
+            <?php
+            if($isDocumentOwner || $isAdmin || $canEdit) {
+            ?>
+                <div id="chatbox" class="bg-gray-900 w-full lg:w-[25%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3 space-y-2"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
+                    <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
+                    <div id="chatboxMessages" class="flex flex-col w-[98%] <?php echo ($isDocumentOwner || $canEdit) ? 'h-[78%]' : 'h-[92%]' ?> bg-gray-200 mx-auto p-2 overflow-y-auto">
+                    </div>
+                    <?php
+                        if($isDocumentOwner || $canEdit) {
+                    ?>
+                        <form id="chatboxMessageBox">
+                            <div class="w-[98%] h-[10%] mx-auto">
+                                <textarea id="messageField" placeholder="Type your message here..." class="outline-none border-2 border-transparent w-full h-full bg-white p-2 resize-none focus:border-blue-500"></textarea>
+                            </div>
+
+                            <div class="flex">
+                                <input type="hidden" id="data_userId" value="<?php echo $_SESSION['user_id'] ?>">
+                                <input type="submit" value="Send" class="w-[94%] border border-white rounded-2xl mx-auto mt-2 px-4 py-1 text-lg text-white hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">
+                            </div>
+                        </form>
+                    <?php
+                    }
+                    ?>
                 </div>
-
-                <form id="chatboxMessageBox">
-                    <div class="w-[98%] h-[10%] mx-auto">
-                        <textarea id="messageField" placeholder="Type your message here..." class="outline-none border-2 border-transparent w-full h-full bg-white p-2 resize-none focus:border-blue-500"></textarea>
-                    </div>
-
-                    <div class="flex">
-                        <input type="hidden" id="data_userId" value="<?php echo $_SESSION['user_id'] ?>">
-                        <input type="submit" value="Send" class="w-[94%] border border-white rounded-2xl mx-auto mt-2 px-4 py-1 text-lg text-white hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">
-                    </div>
-                </form>
-            </div>
+            <?php
+            }
+            ?>
         </div>
 
         <div id="manageDocumentAccess" class="fixed top-0 left-0 z-10 w-full h-full bg-black/55 hidden">
@@ -172,34 +182,7 @@ if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
         </script>
 
         <?php
-        if($isDocumentOwner) {
-        ?>
-            <script>
-                $('.docManagementButtons').removeClass('invisible');
-                $('#chatbox').removeClass('hidden');
-                $('.documentTitle').removeAttr('readonly');
-            </script>
-        <?php
-        } else if($canEdit) {
-        ?>
-            <script>
-                $('#chatbox').removeClass('hidden');
-                $('.documentTitle').removeAttr('readonly');
-            </script>
-        <?php
-        } else if($isAdmin && !$canEdit) {
-        ?>
-            <script>
-                $('#chatbox').removeClass('hidden');
-                $('#chatboxMessages').removeClass('h-[78%]');
-                $('#chatboxMessages').addClass('h-[92%]');
-                $('#chatbox').find('#chatboxMessageBox').addClass('hidden');
-
-                quill.enable(false);
-                document.getElementById('toolbar').classList.add('pointer-events-none', 'opacity-60');
-            </script>
-        <?php
-        } else {
+        if(($isAdmin && !$canEdit) || $isDocumentShared) {
         ?>
             <script>
                 quill.enable(false);
