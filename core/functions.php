@@ -1,5 +1,6 @@
 <?php 
     require_once "dbConfig.php";
+    require_once "phpDiff.php";
 
     function registerAccount($pdo, $username, $password, $firstname, $lastname){ // logged
         $uacQuery = "INSERT INTO user_accounts (username, userpass) VALUES (?, ?)";
@@ -153,15 +154,47 @@
         }
     }
 
-    function saveDocumentContents($pdo, $documentId, $content) { // logged
-        $query = "UPDATE document SET content = ? WHERE document_id = ?";
-        $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute([$content, $documentId]);
+    function extractInsertedAndDeletedHTML($diffHtml) {
+        $inserted = [];
+        $deleted = [];
 
-        if($executeQuery) {
-            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Updated document contents.");
+        // Extract inserted content
+        if (preg_match_all('/<ins>(.*?)<\/ins>/s', $diffHtml, $matches)) {
+            $inserted = $matches[1];
         }
+
+        if (preg_match_all('/<del>(.*?)<\/del>/s', $diffHtml, $matches)) {
+            $deleted = $matches[1];
+        }
+
+        return [
+            'inserted' => $inserted,
+            'deleted' => $deleted
+        ];
     }
+
+    function saveDocumentContents($pdo, $documentId, $newContent) {
+        $oldContent = loadDocumentContents($pdo, $documentId)['content'];
+        $extractedDiffHTML = extractInsertedAndDeletedHTML(getDiffHTML($oldContent, $newContent));
+
+        $logParts = [];
+        if (!empty($extractedDiffHTML['inserted'])) {
+            $logParts[] = "<div class='text-green-500'><strong>Inserted:</strong><br>" . implode("<br>", $extractedDiffHTML['inserted']) . "</div>";
+        }
+        if (!empty($extractedDiffHTML['deleted'])) {
+            $logParts[] = "<div class='text-red-500 mt-2'><strong>Deleted:</strong><br>" . implode("<br>", $extractedDiffHTML['deleted']) . "</div>";
+        }
+
+        $query = "UPDATE document SET content = ? WHERE document_id = ?";
+        $statement = $pdo->prepare($query);
+        $executeQuery = $statement->execute([$newContent, $documentId]);
+
+        if ($executeQuery) {
+            $logHTML = "<span class='text-left'>" . implode("<br><br>", $logParts) . "</span>";
+            logDocEdit($pdo, $_SESSION['user_id'], $documentId, implode("<br>", $extractedDiffHTML['inserted']), implode("<br>", $extractedDiffHTML['deleted']));
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Edited document: " . $logHTML);
+        }
+    }   
 
     function getUsersWithDocAccess($pdo, $documentId) {
         $query = "SELECT usa.user_id, CONCAT(users.firstname, ' ', users.lastname) AS fullname, usa.can_edit, usa.date_shared FROM user_shared_access AS usa INNER JOIN users ON usa.user_id = users.user_id WHERE document_id = ? ORDER BY date_shared DESC"; 
@@ -175,10 +208,10 @@
         }
     }
 
-    function searchUserToShareByName($pdo, $keyword) {
-        $query = "SELECT users.user_id, CONCAT(users.firstname, ' ', users.lastname) AS fullname FROM users LEFT JOIN user_shared_access AS usa ON users.user_id = usa.user_id WHERE CONCAT(users.firstname, ' ', users.lastname) LIKE ? AND usa.user_id IS NULL ORDER BY fullname ASC"; 
+    function searchUserToShareByName($pdo, $documentId, $keyword) {
+        $query = "SELECT users.user_id, CONCAT(users.firstname, ' ', users.lastname) AS fullname FROM users LEFT JOIN user_shared_access AS usa ON users.user_id = usa.user_id AND usa.document_id = ? WHERE CONCAT(users.firstname, ' ', users.lastname) LIKE ? AND usa.user_id IS NULL ORDER BY fullname ASC"; 
         $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute(["%".$keyword."%"]);
+        $executeQuery = $statement -> execute([$documentId, "%".$keyword."%"]);
         
         if($executeQuery) {
             return $statement -> fetchAll();
@@ -268,6 +301,30 @@
         $query = "SELECT logs.action_name, CONCAT(suspect.firstname, ' ', suspect.lastname) AS suspect_name, logs.content_affected, logs.content_type, CONCAT(victim.firstname, ' ', victim.lastname) AS victim_name, logs.remarks, logs.date_logged FROM logs LEFT JOIN users AS suspect ON logs.done_by = suspect.user_id LEFT JOIN users AS victim ON logs.content_owner = victim.user_id ORDER BY date_logged DESC";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([]);
+
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
+    function logDocEdit($pdo, $doneBy, $documentId, $insContent, $delContent) {
+        $query = "INSERT INTO doc_logs (done_by, document_id, inserted_content, deleted_content) VALUES (?, ?, ?, ?)";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$doneBy, $documentId, $insContent, $delContent]);
+
+        if($executeQuery) {
+            return "docEditLogged";
+        } else {
+            return "error";
+        }
+    }
+
+    function getDocLogData($pdo, $documentId) {
+        $query = "SELECT CONCAT(users.firstname, ' ', users.lastname) AS suspect_name, dl.document_id, dl.inserted_content, dl.deleted_content, dl.date_logged FROM doc_logs AS dl LEFT JOIN users ON dl.done_by = users.user_id WHERE dl.document_id = ? ORDER BY date_logged DESC";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$documentId]);
 
         if($executeQuery) {
             return $statement -> fetchAll();

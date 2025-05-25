@@ -50,7 +50,7 @@
             $contentAffected = $log['content_affected'];
             $contentType = $log['content_type'];
             $victimName = $log['victim_name'];
-            $remarks = $log['remarks'];
+            $remarks = html_entity_decode($log['remarks']);
             $dateLogged = $log['date_logged'];
 
             switch($contentType) {
@@ -161,8 +161,9 @@
 
     if(isset($_POST['searchUserRequest'])) {
         $keyword = $_POST['keyword'];
+        $documentId = $_POST['document_id'];
 
-        $function = searchUserToShareByName($pdo, $keyword);
+        $function = searchUserToShareByName($pdo, $documentId, $keyword);
         foreach($function as $user) {
             $userId = $user['user_id'];
             $fullname = $user['fullname'];
@@ -177,9 +178,9 @@
 
     if(isset($_POST['saveDocumentContentRequest'])) {
         $documentId = $_POST['document_id'];
-        $content = $_POST['content'];
+        $newContent = $_POST['content'];
 
-        saveDocumentContents($pdo, $documentId, $content);
+        saveDocumentContents($pdo, $documentId, $newContent);
     }
 
     if(isset($_POST['saveDocumentTitleRequest'])) {

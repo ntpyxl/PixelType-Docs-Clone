@@ -202,6 +202,7 @@ $('#searchUserField').on('input', function() {
 function updateSearchedUsers() {
     const data = {
         keyword: $('#searchUserField').val(),
+        document_id: documentId,
         searchUserRequest: 1
     }
 

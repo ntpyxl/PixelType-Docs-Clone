@@ -55,16 +55,16 @@ if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
                 </div>
 
                 <div class="md:flex space-x-2 justify-end docManagementButtons invisible hidden">
-                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button> <!-- SHOULD ONLY BE VISIBLE TO OWNERS -->
+                    <button onclick="window.location='documentHistory.php?document_id=<?php echo $_GET['document_id'] ?>'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
+                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button>
                 </div>
 
                 <!-- title, and history and access button for mobile -->
-                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="md:hidden block outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black documentTitle" readonly>
+                <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="block md:hidden outline-none focus:border-2 focus:border-blue-500 w-full rounded-xl bg-white mt-3 p-2 text-black documentTitle" readonly>
 
                 <div class="flex space-x-2 mt-3 docManagementButtons invisible md:hidden">
-                    <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button> <!-- SHOULD ONLY BE VISIBLE TO OWNERS -->
+                    <button onclick="window.location='documentHistory.php?document_id=<?php echo $_GET['document_id'] ?>'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
+                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button>
                 </div>
             </div>
         </div>
