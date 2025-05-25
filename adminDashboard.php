@@ -45,8 +45,8 @@ if($_SESSION['user_role'] == "REGULAR") {
 
             <div class="col-span-12 px-8 py-3 bg-gray-800">
                 <h3 class="text-2xl font-semibold my-2">All documents</h3>
-                <div class="w-full overflow-x-auto">
-                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] table-auto">
+                <div class="w-full max-h-[300px] overflow-x-auto overflow-y-auto">
+                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
                         <tr>
                             <th class="border border-white px-2 py-1">DOCUMENT TITLE</th>
                             <th class="border border-white px-2 py-1">OWNER</th>
@@ -79,8 +79,8 @@ if($_SESSION['user_role'] == "REGULAR") {
 
             <div class="col-span-12 px-8 py-3 bg-gray-800">
                 <h3 class="text-2xl font-semibold my-2">All users</h3>
-                <div class="w-full overflow-x-auto">
-                    <table id="userManagementTable" class="border border-separate border-spacing-0 border-white min-w-[500px] table-auto">
+                <div class="w-full max-h-[300px] overflow-x-auto overflow-y-auto">
+                    <table id="userManagementTable" class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
                         <tr>
                             <th class="border border-white px-2 py-1">NAME</th>
                             <th class="border border-white w-[20%] md:w-[15%] px-2 py-1">ROLE</th>
@@ -93,6 +93,26 @@ if($_SESSION['user_role'] == "REGULAR") {
                     </table>
                 </div>
             </div>
+
+            <div class="col-span-12 px-8 py-3 bg-gray-800">
+                <h3 class="text-2xl font-semibold my-2">Activity Logs</h3>
+                <div class="w-full max-h-[500px] overflow-x-auto overflow-y-auto">
+                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
+                        <tr>
+                            <th class="border border-white w-[20%] md:w-[8%] px-2 py-1">ACTION</th>
+                            <th class="border border-white px-2 py-1">DONE BY</th>
+                            <th class="border border-white w-[20%] md:w-[12%] px-2 py-1">WHERE</th>
+                            <th class="border border-white w-[20%] md:w-[8%] px-2 py-1">TYPE</th>
+                            <th class="border border-white px-2 py-1">AFFECTED USER</th>
+                            <th class="border border-white px-2 py-1">REMARKS</th>
+                            <th class="border border-white w-[20%] md:w-[10%] px-2 py-1">DATE LOGGED</th>
+                        </tr>
+                        <tbody id="activityLogsRows">
+                            <!-- HTML rows are located in handleForms.php -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <script src="script.js"></script>
@@ -100,6 +120,7 @@ if($_SESSION['user_role'] == "REGULAR") {
         <script>
             $(document).ready(function() {
                 updateUserManagementTable();
+                updateLogsTable();
             });
         </script>
 

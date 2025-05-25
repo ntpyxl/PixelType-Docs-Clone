@@ -50,8 +50,8 @@ if(!isset($_SESSION['user_id'])) {
                 
                 <button onclick="createNewDocument(<?php echo $_SESSION['user_id'] ?>)" class="border border-white rounded-2xl mt-1 mb-3 px-6 py-2 text-lg hover:cursor-pointer hover:scale-105 hover:bg-gray-700 duration-200">+ Create a new blank document</button>
 
-                <div class="w-full overflow-x-auto">
-                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] table-auto">
+                <div class="w-full max-h-[300px] overflow-x-auto overflow-y-auto">
+                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
                         <tr>
                             <th class="border border-white px-2 py-1">DOCUMENT TITLE</th>
                             <th class="border border-white w-[20%] md:w-[15%] px-2 py-1">LAST UPDATED</th>
@@ -74,8 +74,8 @@ if(!isset($_SESSION['user_id'])) {
 
             <div class="col-span-12 px-8 py-3 bg-gray-800">
                 <h3 class="text-2xl font-semibold my-2">Shared to you</h3>
-                <div class="w-full overflow-x-auto">
-                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] table-auto">
+                <div class="w-full max-h-[300px] overflow-x-auto overflow-y-auto">
+                    <table class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
                         <tr>
                             <th class="border border-white px-2 py-1">DOCUMENT TITLE</th>
                             <th class="border border-white px-2 py-1">OWNER</th>

@@ -1,7 +1,7 @@
 <?php 
     require_once "dbConfig.php";
 
-    function registerAccount($pdo, $username, $password, $firstname, $lastname){
+    function registerAccount($pdo, $username, $password, $firstname, $lastname){ // logged
         $uacQuery = "INSERT INTO user_accounts (username, userpass) VALUES (?, ?)";
         $uacStatement = $pdo -> prepare($uacQuery);
         $execute_uacQuery = $uacStatement -> execute([$username, $password]);
@@ -11,6 +11,7 @@
         $execute_accQuery = $accStatement -> execute([$firstname, $lastname]);
 
         if($execute_uacQuery && $execute_accQuery) {
+            logAction($pdo, "CREATED", $pdo -> lastInsertId(), $pdo -> lastInsertId(), "ACCOUNT", $pdo -> lastInsertId(), "Created an account");
             return "accountRegistered";
         } else {
             return "error";
@@ -39,7 +40,7 @@
     }
 
     function getAllUsers($pdo) {
-        $query = "SELECT user_id, CONCAT(firstname, ' ', lastname) AS fullname, user_role, is_suspended, date_registered FROM users ORDER BY date_registered DESC"; 
+        $query = "SELECT user_id, CONCAT(firstname, ' ', lastname) AS fullname, user_role, is_suspended, date_registered FROM users ORDER BY (user_role = 'ADMIN') DESC, date_registered DESC"; 
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute();
         
@@ -50,24 +51,33 @@
         }
     }
 
-    function updateUserRole($pdo, $userId, $userRole) {
+    function updateUserRole($pdo, $userId, $userRole) { // logged
         $query = "UPDATE users SET user_role = ? WHERE user_id = ?";
         $statement = $pdo -> prepare($query);
-        $statement -> execute([$userRole, $userId]);
+        $executeQuery = $statement -> execute([$userRole, $userId]);
+
+        if($executeQuery) {
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $userId, "ACCOUNT", $userId, "Changed user role to " . ($userRole == "ADMIN" ? "ADMIN" : "REGULAR"));
+        }
     }
 
-    function updateUserStatus($pdo, $userId, $userStatus) {
+    function updateUserStatus($pdo, $userId, $userStatus) { // logged
         $query = "UPDATE users SET is_suspended = ? WHERE user_id = ?";
         $statement = $pdo -> prepare($query);
-        $statement -> execute([$userStatus, $userId]);
+        $executeQuery = $statement -> execute([$userStatus, $userId]);
+
+        if($executeQuery) {
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $userId, "ACCOUNT", $userId, "Changed user status to " . ($userStatus == 1 ? "SUSPENDED" : "ACTIVE"));
+        }
     }
 
-    function createBlankDocument($pdo, $userOwner) {
+    function createBlankDocument($pdo, $userOwner) { // logged
         $query = "INSERT INTO document (user_owner) VALUES (?)";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$userOwner]);
 
         if ($executeQuery) {
+            logAction($pdo, "CREATED", $_SESSION['user_id'], $pdo -> lastInsertId(), "DOCUMENT", $_SESSION['user_id'], "Created a new blank document");
             return ["blankDocumentCreated", $pdo -> lastInsertId()];
         } else {
             return ["error"];
@@ -133,16 +143,24 @@
         return $statement -> fetch();
     }
 
-    function saveDocumentTitle($pdo, $documentId, $title) {
+    function saveDocumentTitle($pdo, $documentId, $title) { // logged
         $query = "UPDATE document SET title = ? WHERE document_id = ?";
         $statement = $pdo -> prepare($query);
-        $statement -> execute([$title, $documentId]);
+        $executeQuery = $statement -> execute([$title, $documentId]);
+
+        if($executeQuery) {
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Updated document title.");
+        }
     }
 
-    function saveDocumentContents($pdo, $documentId, $content) {
+    function saveDocumentContents($pdo, $documentId, $content) { // logged
         $query = "UPDATE document SET content = ? WHERE document_id = ?";
         $statement = $pdo -> prepare($query);
-        $statement -> execute([$content, $documentId]);
+        $executeQuery = $statement -> execute([$content, $documentId]);
+
+        if($executeQuery) {
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Updated document contents.");
+        }
     }
 
     function getUsersWithDocAccess($pdo, $documentId) {
@@ -169,42 +187,49 @@
         }
     }
     
-    function shareDocumentToUser($pdo, $userId, $documentId) {
+    function shareDocumentToUser($pdo, $userId, $documentId) { // logged
         $query = "INSERT INTO user_shared_access (user_id, document_id) VALUES (?, ?)";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$userId, $documentId]);
 
         if($executeQuery) {
+            logAction($pdo, "CREATED", $_SESSION['user_id'], $documentId, "ACCESS", $userId, "Shared access to document");
             return "documentShared";
         } else {
             return "error";
         }
     }
 
-    function revokeDocumentToUser($pdo, $userId, $documentId) {
+    function revokeDocumentToUser($pdo, $userId, $documentId) { // logged
         $query = "DELETE FROM user_shared_access WHERE user_id = ? AND document_id = ?";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$userId, $documentId]);
 
         if($executeQuery) {
+            logAction($pdo, "DELETED", $_SESSION['user_id'], $documentId, "ACCESS", $userId, "Revoked access to document");
             return "documentRevoked";
         } else {
             return "error";
         }
     }
 
-    function updateUserAccessLevel($pdo, $userId, $documentId, $accessLevel) {
+    function updateUserAccessLevel($pdo, $userId, $documentId, $accessLevel) { // logged
         $query = "UPDATE user_shared_access SET can_edit = ? WHERE user_id = ? AND document_id = ?";
         $statement = $pdo -> prepare($query);
-        $statement -> execute([$accessLevel, $userId, $documentId]);
+        $executeQuery = $statement -> execute([$accessLevel, $userId, $documentId]);
+
+        if($executeQuery) {
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "ACCESS", $userId, "Changed document access to " . ($accessLevel == 0 ? "VIEWER" : "EDITOR"));
+        }
     }
 
-    function sendMessage($pdo, $userId, $documentId, $message) {
+    function sendMessage($pdo, $userId, $documentId, $message) { // logged
         $query = "INSERT INTO document_messages (on_document_id, sender_id, content) VALUES (?, ?, ?)";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$documentId, $userId, $message]);
 
         if($executeQuery) {
+            logAction($pdo, "CREATED", $_SESSION['user_id'], $pdo -> lastInsertId(), "MESSAGE", $_SESSION['user_id'], 'Sent "' . $message . '"');
             return "messageSent";
         } else {
             return "error";
@@ -215,6 +240,34 @@
         $query = "SELECT dm.sender_id, CONCAT(users.firstname, ' ', users.lastname) AS fullname, dm.content, dm.date_sent FROM document_messages AS dm INNER JOIN users ON dm.sender_id = users.user_id WHERE on_document_id = ? ORDER BY date_sent ASC";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$documentId]);
+
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
+    // TYPE: ACCOUNT = AFFECTED AND OWNER IS ACCOUNT ID
+    // TYPE: DOCUMENT = AFFECTED IS DOCUMENT ID, OWNER IS DOCUMENT OWNER ID
+    // TYPE: ACCESS = AFFECTED IS DOCUMENT ID, OWNER IS SHARED USER
+    // TYPE: MESSAGE = AFFECTED IS DOCUMENT ID, OWNER IS SESSION USER ID
+    function logAction($pdo, $action, $suspect, $contentVictim, $contentType, $userVictim, $remarks) {
+        $query = "INSERT INTO logs (action_name, done_by, content_affected, content_type, content_owner, remarks) VALUES (?, ?, ?, ?, ?, ?)";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$action, $suspect, $contentVictim, $contentType, $userVictim, $remarks]);
+
+        if($executeQuery) {
+            return "actionLogged";
+        } else {
+            return "error";
+        }
+    }
+
+    function getLogData($pdo) {
+        $query = "SELECT logs.action_name, CONCAT(suspect.firstname, ' ', suspect.lastname) AS suspect_name, logs.content_affected, logs.content_type, CONCAT(victim.firstname, ' ', victim.lastname) AS victim_name, logs.remarks, logs.date_logged FROM logs LEFT JOIN users AS suspect ON logs.done_by = suspect.user_id LEFT JOIN users AS victim ON logs.content_owner = victim.user_id ORDER BY date_logged DESC";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([]);
 
         if($executeQuery) {
             return $statement -> fetchAll();

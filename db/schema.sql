@@ -30,6 +30,7 @@ CREATE TABLE user_shared_access (
 );
 
 CREATE TABLE document_messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
     on_document_id INT NOT NULL,
     sender_id INT NOT NULL,
     content TEXT NOT NULL,
@@ -40,8 +41,9 @@ CREATE TABLE logs (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     action_name ENUM('CREATED', 'UPDATED', 'DELETED') NOT NULL,
     done_by INT NOT NULL,
-    content_affected ENUM('ACCOUNT', 'DOCUMENT', 'ACCESS', 'MESSAGE') NOT NULL,
-    content_type INT NOT NULL,
+    content_affected INT NOT NULL,
+    content_type ENUM('ACCOUNT', 'DOCUMENT', 'ACCESS', 'MESSAGE') NOT NULL,
     content_owner INT NOT NULL,
+    remarks LONGTEXT,
     date_logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

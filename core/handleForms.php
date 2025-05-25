@@ -43,6 +43,45 @@
         updateUserRole($pdo, $userId, $userRole);
     }
 
+    if(isset($_POST['adminLogsTableRequest'])) {
+        foreach(getLogData($pdo) as $log) {
+            $actionName = $log['action_name'];
+            $suspectName = $log['suspect_name'];
+            $contentAffected = $log['content_affected'];
+            $contentType = $log['content_type'];
+            $victimName = $log['victim_name'];
+            $remarks = $log['remarks'];
+            $dateLogged = $log['date_logged'];
+
+            switch($contentType) {
+                case 'ACCOUNT':
+                    $contentAffected_string = 'USER ID #' . $contentAffected;
+                    break;
+                case 'DOCUMENT':
+                    $contentAffected_string = 'DOCUMENT ID #' . $contentAffected;
+                    break;
+                case 'ACCESS':
+                    $contentAffected_string = 'ON DOCUMENT ID #' . $contentAffected;
+                    break;
+                case 'MESSAGE':
+                    $contentAffected_string = 'ON DOCUMENT ID #' . $contentAffected;
+                    break;
+            }
+
+            echo "
+                <tr class='border group relative'>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$actionName</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$suspectName</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$contentAffected_string</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$contentType</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$victimName</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$remarks</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$dateLogged</th>
+                </tr>
+            ";
+        }
+    }
+
     if(isset($_POST['adminAllUsersRequest'])) {
         $function = getAllUsers($pdo);
         foreach($function as $user) {
@@ -78,7 +117,7 @@
             }
 
             echo "
-                <tr class='border group relative select-none'>
+                <tr class='border group relative'>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$fullname</th>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$roleHTML</th>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$statusHTML</th>

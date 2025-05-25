@@ -81,12 +81,24 @@ $('#userLoginForm').on('submit', function(event) {
     })
 })
 
+function updateLogsTable() {
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: {adminLogsTableRequest: 1},
+        success: function(data) {
+            $('#activityLogsRows').html(data);
+        }
+    })
+}
+
 function updateUserManagementTable() {
     $.ajax({
         type: "POST",
         url: handleFormDirectory,
         data: {adminAllUsersRequest: 1},
         success: function(data) {
+            updateLogsTable();
             $('#allUsersRows').html(data);
         }
     })
