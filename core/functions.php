@@ -26,12 +26,40 @@
         }
 
         $userAccountData = getUserAccByUsername($pdo, $username);
-        if(password_verify($password, $userAccountData['userpass'])) {
+        $userInfoData = getUserInfoById($pdo, $userAccountData['user_id']);
+        if($userInfoData['is_suspended']) {
+            return "userSuspended";
+        } else if(password_verify($password, $userAccountData['userpass'])) {
             $_SESSION['user_id'] = $userAccountData['user_id'];
+            $_SESSION['user_role'] = $userInfoData['user_role'];
             return "loginSuccess";
         } else {
             return "incorrectPassword";
         }
+    }
+
+    function getAllUsers($pdo) {
+        $query = "SELECT user_id, CONCAT(firstname, ' ', lastname) AS fullname, user_role, is_suspended, date_registered FROM users ORDER BY date_registered DESC"; 
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute();
+        
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+    }
+
+    function updateUserRole($pdo, $userId, $userRole) {
+        $query = "UPDATE users SET user_role = ? WHERE user_id = ?";
+        $statement = $pdo -> prepare($query);
+        $statement -> execute([$userRole, $userId]);
+    }
+
+    function updateUserStatus($pdo, $userId, $userStatus) {
+        $query = "UPDATE users SET is_suspended = ? WHERE user_id = ?";
+        $statement = $pdo -> prepare($query);
+        $statement -> execute([$userStatus, $userId]);
     }
 
     function createBlankDocument($pdo, $userOwner) {
@@ -43,6 +71,19 @@
             return ["blankDocumentCreated", $pdo -> lastInsertId()];
         } else {
             return ["error"];
+        }
+    }
+
+    function getAllDocuments($pdo) {
+        // entire row info is returned except for document contents which can be very long
+        $query = "SELECT document.document_id, document.title, CONCAT(users.firstname, ' ', users.lastname) AS owner_name, document.date_created, document.last_updated FROM document INNER JOIN users ON document.user_owner = users.user_id ORDER BY last_updated DESC"; 
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute();
+        
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
         }
     }
 
@@ -235,6 +276,19 @@
         } else {
             return "error";
         }
+    }
+    
+    function getUsersNameSharedDoc($pdo, $documentId) {
+        $query = "SELECT CONCAT(users.firstname, ' ', users.lastname) AS fullname, usa.can_edit FROM user_shared_access AS usa INNER JOIN users ON usa.user_id = users.user_id WHERE usa.document_id = ? ORDER BY date_shared DESC";
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$documentId]);
+        
+        if($executeQuery) {
+            return $statement -> fetchAll();
+        } else {
+            return "error";
+        }
+        
     }
 
     function getDocumentTitle($pdo, $documentId) {

@@ -55,13 +55,18 @@ $('#userLoginForm').on('submit', function(event) {
         data: formData,
         success: function(data) {
             if(data.trim() == "loginSuccess") {
-                window.location.href = "index.php?userLoginSuccess=1"
-            } else if(data.trim() == "usernameNotExisting"){
+                window.location.href = "index.php?userLoginSuccess=1";
+            } else if(data.trim() == "userSuspended") {
+                changeMessage(
+                    "User is suspended!",
+                    "Please contact moderators.",
+                    1);
+            } else if(data.trim() == "usernameNotExisting") {
                 changeMessage(
                     "Failed to Log In!",
                     "User does not exist!",
                     1);
-            } else if(data.trim() == "incorrectPassword"){
+            } else if(data.trim() == "incorrectPassword") {
                 changeMessage(
                     "Failed to Log In!",
                     "Incorrect password!",
@@ -74,6 +79,53 @@ $('#userLoginForm').on('submit', function(event) {
             }
         }
     })
+})
+
+function updateUserManagementTable() {
+    $.ajax({
+        type: "POST",
+        url: handleFormDirectory,
+        data: {adminAllUsersRequest: 1},
+        success: function(data) {
+            $('#allUsersRows').html(data);
+        }
+    })
+}
+
+$('#userManagementTable').on('change', '.userRoleSelect', function() {
+    const userId = $(this).data('user-id');
+    const newUserRole = $(this).val();
+
+    $.ajax({
+        url: handleFormDirectory,
+        type: 'POST',
+        data: {
+            user_id: userId,
+            user_role: newUserRole,
+            updateUserRoleRequest: 1
+        },
+        success: function(response) {
+            updateUserManagementTable();
+        }
+    });
+})
+
+$('#userManagementTable').on('change', '.userStatusSelect', function() {
+    const userId = $(this).data('user-id');
+    const newUserStatus = $(this).val();
+
+    $.ajax({
+        url: handleFormDirectory,
+        type: 'POST',
+        data: {
+            user_id: userId,
+            user_status: newUserStatus,
+            updateUserStatusRequest: 1
+        },
+        success: function(response) {
+            updateUserManagementTable();
+        }
+    });
 })
 
 function createNewDocument(user_id) {
@@ -89,8 +141,8 @@ function createNewDocument(user_id) {
         success: function(data) {
             const parsedData = JSON.parse(data);
             if(parsedData[0].trim() == "blankDocumentCreated") {
-                link = "document.php?document_id=" + parsedData[1];
-                window.location.href = link;
+
+                window.location.href = "document.php?document_id=" + parsedData[1];
             } else {
                 changeMessage(
                     "Failed to Create New Document!",
@@ -206,8 +258,8 @@ function revokeDocumentToUser(userId) {
 }
 
 $('#usersWithDocumentAccess').on('change', '.sharedUserControlLevel', function() {
-    const newAccessLevel = $(this).val();
     const userId = $(this).data('user-id');
+    const newAccessLevel = $(this).val();
 
     $.ajax({
         url: handleFormDirectory,
@@ -222,7 +274,6 @@ $('#usersWithDocumentAccess').on('change', '.sharedUserControlLevel', function()
             console.log('Access level updated');
         }
     });
-    
 })
 
 $('#chatboxMessageBox').on('submit', function(event) {
@@ -319,9 +370,3 @@ function scrollChatboxToBottom() {
     const chatbox = $('#chatbox').find('#chatboxMessages');
     chatbox.scrollTop(chatbox[0].scrollHeight);
 }
-
-// initial load on webpage load
-$(document).ready(function() {
-    updateChatboxMessages();
-    updateSharedUsers();
-});

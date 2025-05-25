@@ -29,6 +29,65 @@
         echo $function;
     }
 
+    if(isset($_POST['updateUserStatusRequest'])) {
+        $userId = $_POST['user_id'];
+        $userStatus = $_POST['user_status'] == 'active' ? 0 : 1;
+
+        updateUserStatus($pdo, $userId, $userStatus);
+    }
+
+    if(isset($_POST['updateUserRoleRequest'])) {
+        $userId = $_POST['user_id'];
+        $userRole = $_POST['user_role'] == 'admin' ? 'ADMIN' : 'REGULAR';
+
+        updateUserRole($pdo, $userId, $userRole);
+    }
+
+    if(isset($_POST['adminAllUsersRequest'])) {
+        $function = getAllUsers($pdo);
+        foreach($function as $user) {
+            $userId = $user['user_id'];
+            $fullname = $user['fullname'];
+            $dateRegistered = $user['date_registered'];
+
+            $userRole = $user['user_role'];
+            $userRole_selectRegular = $userRole == 'REGULAR' ? 'selected' : '';
+            $userRole_selectAdmin = $userRole == 'ADMIN' ? 'selected' : '';
+
+            $userStatus = $user['is_suspended'];
+            $userStatus_bg = $userStatus == 1 ? 'bg-red-600' : '';
+            $userStatus_selectPostive = $userStatus == 0 ? 'selected' : '';
+            $userStatus_selectNegative = $userStatus == 1 ? 'selected' : '';
+
+            if($userId != $_SESSION['user_id']) {
+                $roleHTML = "
+                <select class='outline-none border border-white rounded-xl focus:bg-gray-700 px-2 py-1 hover:cursor-pointer userRoleSelect' data-user-id='$userId'>
+                    <option value='regular' $userRole_selectRegular>REGULAR</option>
+                    <option value='admin' $userRole_selectAdmin>ADMIN</option>
+                </select>
+                ";
+                $statusHTML = "
+                <select class='outline-none border $userStatus_bg border-white rounded-xl focus:bg-gray-700 px-2 py-1 hover:cursor-pointer userStatusSelect' data-user-id='$userId'>
+                    <option value='active' $userStatus_selectPostive>ACTIVE</option>
+                    <option value='suspended' $userStatus_selectNegative>SUSPENDED</option>
+                </select>
+                ";
+            } else {
+                $roleHTML = $userRole == 0 ? "REGULAR" : "ADMIN";
+                $statusHTML = $userStatus == 0 ? "ACTIVE" : "SUSPENDED";
+            }
+
+            echo "
+                <tr class='border group relative select-none'>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$fullname</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$roleHTML</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$statusHTML</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$dateRegistered</th>
+                </tr>
+            ";
+        }
+    }
+    
     if(isset($_POST['newBlankDocumentRequest'])) {
         $userOwner = $_POST['owner'];
 
@@ -123,31 +182,26 @@
 
     if(isset($_POST['chatboxMessagesRequest'])) {
         $documentId = $_POST['document_id'];
+        $messages = getDocumentMessages($pdo, $documentId);
 
-        $function = getDocumentMessages($pdo, $documentId);
-        foreach($function as $message) {
-            $senderId = $message['sender_id'];
-            $fullname = $message['fullname'];
+        foreach ($messages as $message) {
+            $isSender = ($_SESSION['user_id'] == $message['sender_id']);
+
+            $name = $isSender ? "You" : $message['fullname'];
             $content = $message['content'];
             $dateSent = $message['date_sent'];
 
-            if($_SESSION['user_id'] == $senderId) {
-                echo "
-                    <div class='flex flex-col my-4 items-end messageBox'>
-                        <p class='text-sm w-fit max-w-[70%] mx-1 break-words'>You</p>
-                        <div class='border-2 border-black w-fit max-w-[75%] bg-cyan-300 rounded-xl rounded-br-none px-2 py-1 break-words'>$content</div>
-                        <p class='w-fit text-xs text-gray-600'>$dateSent</p>
-                    </div>
-                ";
-            } else {
-                echo "
-                    <div class='flex flex-col my-4 items-start messageBox'>
-                        <p class='text-sm w-fit max-w-[70%] mx-1 break-words'>$fullname</p>
-                        <div class='border-2 border-black w-fit max-w-[75%] bg-white rounded-xl rounded-bl-none mr-auto px-2 py-1 break-words'>$content</div>
-                        <p class='w-fit text-xs text-gray-600 mr-auto'>$dateSent</p>
-                    </div>
-                ";
-            }
+            $alignment = $isSender ? "items-end" : "items-start";
+            $bubbleColor = $isSender ? "bg-cyan-300 rounded-br-none" : "bg-white rounded-bl-none";
+            $timestampAlign = $isSender ? "ml-auto" : "mr-auto";
+            
+            echo "
+                <div class='flex flex-col my-4 $alignment messageBox'>
+                    <p class='text-sm w-fit max-w-[70%] mx-1 break-words'>$name</p>
+                    <div class='border-2 border-black w-fit max-w-[75%] $bubbleColor rounded-xl px-2 py-1 break-words'>$content</div>
+                    <p class='w-fit text-xs text-gray-600 $timestampAlign'>$dateSent</p>
+                </div>
+            ";
         }
     }
 ?>

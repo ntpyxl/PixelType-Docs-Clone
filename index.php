@@ -18,18 +18,26 @@ if(!isset($_SESSION['user_id'])) {
     </head>
     <body class="bg-gray-700">
         <div class="grid grid-cols-12 gap-2 text-white">
-            <div class="col-span-12 gap-2 flex flex-row bg-gray-900 px-6 py-2">
-                <div class="col-span-12 md:col-span-4 flex space-x-5 px-3 py-2 items-center">
+            <div class="col-span-12 gap-2 flex flex-col md:flex-row bg-gray-900 px-6 py-2">
+                <div class="flex flex-col md:flex-row md:h-[60px] space-x-0 md:space-x-5 space-y-4 md:space-y-0 px-3 py-2 items-center">
                     <h4 class="text-xl font-semibold">
                         Hello, <span class="font-bold">
                             <?php echo getUserFullNameById($pdo, $_SESSION['user_id'])['fullname'] ?>
                         </span>
                     </h4>
-
-                    <button onclick="window.location='core/logout.php'" class="border border-white rounded-2xl px-6 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Logout</button>
+                    <div class="space-x-3">
+                        <button onclick="window.location='core/logout.php'" class="border border-white rounded-2xl px-6 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Logout</button>
+                        <?php 
+                        if($_SESSION['user_role'] == "ADMIN") {
+                        ?>
+                            <button onclick="window.location='adminDashboard.php'" class="border border-white rounded-2xl px-6 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Admin Dashboard</button>
+                        <?php
+                        }
+                        ?>
+                    </div>
                 </div>
                 
-                <div class="col-span-12 md:col-span-4 px-3 py-2">
+                <div class="px-3 py-2">
                     <div id="messageBox" class="hidden max-w-[80vw] md:max-w-[26vw] h-fit rounded-2xl my-auto px-5 py-2 text-white text-center">
                         <h4 id="title" class="text-xl font-semibold"></h4>
                         <p id="message" class="mt-3"></p>
@@ -52,7 +60,7 @@ if(!isset($_SESSION['user_id'])) {
                         <?php
                         foreach(getCreatedDocuments($pdo, $_SESSION['user_id']) as $ownedDoc) {
                         ?>
-                            <tr onclick="window.location='document.php?document_id=<?php echo $ownedDoc['document_id'] ?>'" class="border group relative z-50 select-none cursor-pointer">
+                            <tr onclick="window.location='document.php?document_id=<?php echo $ownedDoc['document_id'] ?>'" class="border group relative select-none cursor-pointer">
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $ownedDoc['title'] ?></th>
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $ownedDoc['last_updated'] ?></th>
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $ownedDoc['date_created'] ?></th>
@@ -77,7 +85,7 @@ if(!isset($_SESSION['user_id'])) {
                         <?php
                         foreach(getSharedDocuments($pdo, $_SESSION['user_id']) as $sharedDoc) {
                         ?>
-                            <tr onclick="window.location='document.php?document_id=<?php echo $sharedDoc['document_id'] ?>'" class="border group relative z-50 select-none cursor-pointer">
+                            <tr onclick="window.location='document.php?document_id=<?php echo $sharedDoc['document_id'] ?>'" class="border group relative select-none cursor-pointer">
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $sharedDoc['title'] ?></th>
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $sharedDoc['owner_name'] ?></th>
                                 <th class="border border-white group-hover:border-blue-500 px-2 py-1"><?php echo $sharedDoc['last_updated'] ?></th>

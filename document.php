@@ -7,6 +7,7 @@ if(!isset($_SESSION['user_id'])) {
 
 $isDocumentOwner = false;
 $isDocumentShared = false;
+$isAdmin = false;
 $canEdit = false;
 if($_SESSION['user_id'] == getDocumentOwner($pdo, $_GET['document_id'])['user_owner']) {
     $isDocumentOwner = true;
@@ -17,8 +18,11 @@ if(in_array($_SESSION['user_id'], getUserIdsWithDocAccess($pdo, $_GET['document_
         $canEdit = true;
     }
 }
+if($_SESSION['user_role'] == "ADMIN") {
+    $isAdmin = true;
+}
 
-if(!$isDocumentOwner && !$isDocumentShared) {
+if(!$isDocumentOwner && !$isDocumentShared && !$isAdmin) {
     header("Location: index.php?documentAccessRestricted=1");
 }
 ?>
@@ -38,7 +42,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
     </head>
     <body class="bg-gray-700">
 
-        <!-- indescribable pile of garbage TODO: FIX LATER -->
+        <!-- indescribable pile of garbage TODO: REFACTOR LATER -->
         <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
                 <div class="flex flex-wrap items-center space-x-2">
@@ -52,7 +56,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
 
                 <div class="md:flex space-x-2 justify-end docManagementButtons invisible hidden">
                     <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">View History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button>
+                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Manage Access</button> <!-- SHOULD ONLY BE VISIBLE TO OWNERS -->
                 </div>
 
                 <!-- title, and history and access button for mobile -->
@@ -60,7 +64,7 @@ if(!$isDocumentOwner && !$isDocumentShared) {
 
                 <div class="flex space-x-2 mt-3 docManagementButtons invisible md:hidden">
                     <button onclick="window.location=''" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">History</button>
-                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button>
+                    <button onclick="openDocumentAccessManagementModal()" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Access</span></button> <!-- SHOULD ONLY BE VISIBLE TO OWNERS -->
                 </div>
             </div>
         </div>
@@ -144,12 +148,12 @@ if(!$isDocumentOwner && !$isDocumentShared) {
 
                 <h3 class="mt-5 text-2xl font-semibold">USERS WITH ACCESS</h3>
                 <div id="usersWithDocumentAccess" class="h-[280px] mt-2 mb-3 overflow-auto">
-                    <!-- Shared user cards are in core/handleForms.php line 48 -->
+                    <!-- HTML rows are located in handleForms.php -->
                 </div>
                 
                 <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-xl bg-white px-3 py-1 text-black">
                 <div id="searchResults" class="h-[240px] md:h-[320px] m-2 overflow-auto">
-                    <!-- Searched user cards are in core/handleForms.php line 71 -->
+                    <!-- HTML rows are located in handleForms.php -->
                 </div>
 
                 <button onclick="closeDocumentAccessManagementModal()" class="border border-white w-full rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">Close</button>
@@ -160,8 +164,15 @@ if(!$isDocumentOwner && !$isDocumentShared) {
         <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
         <script src="quillScript.js"></script>
 
+        <script>
+            $(document).ready(function() {
+                updateChatboxMessages();
+                updateSharedUsers();
+            });
+        </script>
+
         <?php
-        if($isDocumentOwner || $canEdit) {
+        if($isDocumentOwner) {
         ?>
             <script>
                 $('.docManagementButtons').removeClass('invisible');
@@ -169,12 +180,30 @@ if(!$isDocumentOwner && !$isDocumentShared) {
                 $('.documentTitle').removeAttr('readonly');
             </script>
         <?php
+        } else if($canEdit) {
+        ?>
+            <script>
+                $('#chatbox').removeClass('hidden');
+                $('.documentTitle').removeAttr('readonly');
+            </script>
+        <?php
+        } else if($isAdmin && !$canEdit) {
+        ?>
+            <script>
+                $('#chatbox').removeClass('hidden');
+                $('#chatboxMessages').removeClass('h-[78%]');
+                $('#chatboxMessages').addClass('h-[92%]');
+                $('#chatbox').find('#chatboxMessageBox').addClass('hidden');
+
+                quill.enable(false);
+                document.getElementById('toolbar').classList.add('pointer-events-none', 'opacity-60');
+            </script>
+        <?php
         } else {
         ?>
             <script>
                 quill.enable(false);
-                const toolbar = document.getElementById('toolbar');
-                toolbar.classList.add('pointer-events-none', 'opacity-60');
+                document.getElementById('toolbar').classList.add('pointer-events-none', 'opacity-60');
             </script>
         <?php
         }
