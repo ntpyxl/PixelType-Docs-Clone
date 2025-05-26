@@ -96,7 +96,7 @@ if($_SESSION['user_role'] == "REGULAR") {
 
             <div class="col-span-12 px-8 py-3 bg-gray-800">
                 <h3 class="text-2xl font-semibold my-2">Activity Logs</h3>
-                <div class="w-full max-h-[500px] overflow-x-auto overflow-y-auto">
+                <div class="max-h-[500px] w-full overflow-x-auto overflow-y-auto">
                     <table class="border border-separate border-spacing-0 border-white min-w-[500px] w-full table-auto">
                         <tr>
                             <th class="border border-white w-[20%] md:w-[8%] px-2 py-1">ACTION</th>
@@ -104,7 +104,7 @@ if($_SESSION['user_role'] == "REGULAR") {
                             <th class="border border-white w-[20%] md:w-[12%] px-2 py-1">WHERE</th>
                             <th class="border border-white w-[20%] md:w-[8%] px-2 py-1">TYPE</th>
                             <th class="border border-white px-2 py-1">AFFECTED USER</th>
-                            <th class="border border-white px-2 py-1">REMARKS</th>
+                            <th class="border border-white px-2 py-1 max-w-[48vw] break-words">REMARKS</th>
                             <th class="border border-white w-[20%] md:w-[10%] px-2 py-1">DATE LOGGED</th>
                         </tr>
                         <tbody id="activityLogsRows">

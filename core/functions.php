@@ -164,11 +164,9 @@
         $inserted = [];
         $deleted = [];
 
-        // Extract inserted content
         if (preg_match_all('/<ins>(.*?)<\/ins>/s', $diffHtml, $matches)) {
             $inserted = $matches[1];
         }
-
         if (preg_match_all('/<del>(.*?)<\/del>/s', $diffHtml, $matches)) {
             $deleted = $matches[1];
         }

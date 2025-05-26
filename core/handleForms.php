@@ -50,7 +50,7 @@
             $contentAffected = $log['content_affected'];
             $contentType = $log['content_type'];
             $victimName = $log['victim_name'];
-            $remarks = html_entity_decode($log['remarks']);
+            $remarks = $log['remarks'];
             $dateLogged = $log['date_logged'];
 
             switch($contentType) {
@@ -75,7 +75,7 @@
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$contentAffected_string</th>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$contentType</th>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$victimName</th>
-                    <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$remarks</th>
+                    <th class='border border-white group-hover:border-blue-500 px-2 py-1 max-w-[48vw] break-words'>$remarks</th>
                     <th class='border border-white group-hover:border-blue-500 px-2 py-1'>$dateLogged</th>
                 </tr>
             ";
