@@ -181,7 +181,6 @@
         $newContent = $_POST['content'];
 
         saveDocumentContents($pdo, $documentId, $newContent);
-        echo $documentId;
     }
 
     if(isset($_POST['saveDocumentTitleRequest'])) {
