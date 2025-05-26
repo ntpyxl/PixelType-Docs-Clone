@@ -117,7 +117,7 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
                 </div>
 
                 <div id="loadedDocumentContentData" class="hidden"><?php echo htmlspecialchars(loadDocumentContents($pdo, $_GET['document_id'])['content']); ?></div>
-                <div class="">
+                <div>
                     <div id="editor-container"></div>
                 </div>
             </div>

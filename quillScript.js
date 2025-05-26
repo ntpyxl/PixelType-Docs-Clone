@@ -32,7 +32,7 @@ quill.on('text-change', function() {
             type: "POST",
             url: handleFormDirectory,
             data: formData,
-            success: function() {
+            success: function(data) {
                 const documentSavedAlert = $('#documentSavedAlert');
                 documentSavedAlert.removeClass('hidden');
                 fadeOutNotification(documentSavedAlert);

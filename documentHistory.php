@@ -57,13 +57,13 @@ if(!$isDocumentOwner && !$isAdmin && !$canEdit) {
                     </div>
                     <div class="flex flex-col lg:w-[816px] space-y-3">
                         <div class="bg-gray-700 px-3 pt-3 pb-5">
-                            <h3 class="text-xl font-semibold text-white">INSERTED</h3>
+                            <h3 class="text-xl font-semibold text-white"><?php echo $change['change_type'] == "CONTENT" ? "INSERTED" : "NEW TITLE" ?></h3>
                             <div class="bg-green-300 px-3 py-1">
                                 <?php echo html_entity_decode($change['inserted_content']) ?>
                             </div>
                         </div>
                         <div class="bg-gray-700 px-3 pt-3 pb-5">
-                            <h3 class="text-xl font-semibold text-white">DELETED</h3>
+                            <h3 class="text-xl font-semibold text-white"><?php echo $change['change_type'] == "CONTENT" ? "DELETED" : "OLD TITLE" ?></h3>
                             <div class="bg-red-300 px-3 py-1">
                                 <?php echo html_entity_decode($change['deleted_content']) ?>
                             </div>

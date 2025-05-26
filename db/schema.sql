@@ -52,6 +52,7 @@ CREATE TABLE doc_logs (
     doc_log_id INT AUTO_INCREMENT PRIMARY KEY,
     done_by INT NOT NULL,
     document_id INT NOT NULL,
+    change_type ENUM('TITLE', 'CONTENT') NOT NULL,
     inserted_content LONGTEXT,
     deleted_content LONGTEXT,
     date_logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP

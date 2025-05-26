@@ -147,13 +147,16 @@
         return $statement -> fetch();
     }
 
-    function saveDocumentTitle($pdo, $documentId, $title) { // logged
+    function saveDocumentTitle($pdo, $documentId, $newTitle) { // logged
+        $oldTitle = getDocumentTitle($pdo, $documentId)['title'];
         $query = "UPDATE document SET title = ? WHERE document_id = ?";
         $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute([$title, $documentId]);
+        $executeQuery = $statement -> execute([$newTitle, $documentId]);
 
         if($executeQuery) {
-            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Updated document title.");
+            $remark = "Updated document title from: [<span class='text-red-500'>" . htmlspecialchars($oldTitle) . "</span>] to [<span class='text-green-500'>" . htmlspecialchars($newTitle) . "</span>]";
+            logDocEdit($pdo, $_SESSION['user_id'], $documentId, "TITLE", $oldTitle, $newTitle);
+            logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], $remark);
         }
     }
 
@@ -177,7 +180,7 @@
     }
 
     function saveDocumentContents($pdo, $documentId, $newContent) {
-        $oldContent = loadDocumentContents($pdo, $documentId)['content'];
+        $oldContent = loadDocumentContents($pdo, $documentId)['content'] ?? '';
         $extractedDiffHTML = extractInsertedAndDeletedHTML(getDiffHTML($oldContent, $newContent));
 
         $logParts = [];
@@ -189,12 +192,12 @@
         }
 
         $query = "UPDATE document SET content = ? WHERE document_id = ?";
-        $statement = $pdo->prepare($query);
-        $executeQuery = $statement->execute([$newContent, $documentId]);
+        $statement = $pdo -> prepare($query);
+        $executeQuery = $statement -> execute([$newContent, $documentId]);
 
         if ($executeQuery) {
             $logHTML = "<span class='text-left'>" . implode("<br><br>", $logParts) . "</span>";
-            logDocEdit($pdo, $_SESSION['user_id'], $documentId, implode("<br>", $extractedDiffHTML['inserted']), implode("<br>", $extractedDiffHTML['deleted']));
+            logDocEdit($pdo, $_SESSION['user_id'], $documentId, "CONTENT", implode("<br>", $extractedDiffHTML['inserted']), implode("<br>", $extractedDiffHTML['deleted']));
             logAction($pdo, "UPDATED", $_SESSION['user_id'], $documentId, "DOCUMENT", getDocumentOwner($pdo, $documentId)['user_owner'], "Edited document: " . $logHTML);
         }
     }   
@@ -313,10 +316,10 @@
         }
     }
 
-    function logDocEdit($pdo, $doneBy, $documentId, $insContent, $delContent) {
-        $query = "INSERT INTO doc_logs (done_by, document_id, inserted_content, deleted_content) VALUES (?, ?, ?, ?)";
+    function logDocEdit($pdo, $doneBy, $documentId, $changeType, $insContent, $delContent) {
+        $query = "INSERT INTO doc_logs (done_by, document_id, change_type, inserted_content, deleted_content) VALUES (?, ?, ?, ?, ?)";
         $statement = $pdo -> prepare($query);
-        $executeQuery = $statement -> execute([$doneBy, $documentId, $insContent, $delContent]);
+        $executeQuery = $statement -> execute([$doneBy, $documentId, $changeType, $insContent, $delContent]);
 
         if($executeQuery) {
             return "docEditLogged";
@@ -326,7 +329,7 @@
     }
 
     function getDocLogData($pdo, $documentId) {
-        $query = "SELECT CONCAT(users.firstname, ' ', users.lastname) AS suspect_name, dl.document_id, dl.inserted_content, dl.deleted_content, dl.date_logged FROM doc_logs AS dl LEFT JOIN users ON dl.done_by = users.user_id WHERE dl.document_id = ? ORDER BY date_logged DESC";
+        $query = "SELECT CONCAT(users.firstname, ' ', users.lastname) AS suspect_name, dl.document_id, dl.change_type, dl.inserted_content, dl.deleted_content, dl.date_logged FROM doc_logs AS dl LEFT JOIN users ON dl.done_by = users.user_id WHERE dl.document_id = ? ORDER BY date_logged DESC";
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$documentId]);
 
