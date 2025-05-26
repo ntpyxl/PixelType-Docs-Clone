@@ -41,9 +41,9 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     </head>
     <body class="bg-gray-700">
-        <div class="bg-gray-900 text-white flex justify-between items-center px-4 py-3">
+        <div id="header" class="bg-gray-900 text-white justify-between items-center px-4 py-3">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 w-full">
-                <div class="flex flex-col md:flex-row md:flex-wrap md:items-center md:space-x-2 space-y-2 md:space-y-0">
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
                     <button onclick="window.location='index.php'" class="border border-white rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-110 hover:bg-gray-800 duration-200">Homepage</button>
 
                     <input type="text" value="<?php echo getDocumentTitle($pdo, $_GET['document_id'])['title'] ?>" class="outline-none focus:border-2 focus:border-blue-500 w-full md:w-[40vw] rounded-xl bg-white ml-0 md:ml-3 mt-1 md:mt-0 px-2 py-1 text-black documentTitle" <?php if(!($isDocumentOwner || $canEdit)) {echo "readonly";} ?>>
@@ -68,9 +68,9 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row">
+        <div id="mainBody" class="flex flex-col lg:flex-row space-y-4 md:space-y-0">
             <!-- QUILL EDITOR -->
-            <div class="bg-white lg:w-[816px] mx-auto">
+            <div class="bg-white lg:w-[816px] h-fit mx-auto">
                 <div id="toolbar">
                     <span class="ql-formats">
                         <select class="ql-font">
@@ -117,7 +117,7 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
                 </div>
 
                 <div id="loadedDocumentContentData" class="hidden"><?php echo htmlspecialchars(loadDocumentContents($pdo, $_GET['document_id'])['content']); ?></div>
-                <div class="width-full h-[calc(89vh_-_5px)]"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
+                <div class="">
                     <div id="editor-container"></div>
                 </div>
             </div>
@@ -126,15 +126,16 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
             <?php
             if($isDocumentOwner || $isAdmin || $canEdit) {
             ?>
-                <div id="chatbox" class="bg-gray-900 w-full lg:w-[25%] h-[calc(94vh_-_7px)] mx-auto lg:mx-0 p-3 space-y-2"> <!-- TODO: FIX HEIGHT. NOT RESPONSIVE. -->
+                <div id="chatbox" class="bg-gray-900 w-full h-full lg:w-[25%] mx-auto lg:mx-0 p-3 space-y-2">
                     <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
-                    <div id="chatboxMessages" class="flex flex-col w-[98%] <?php echo ($isDocumentOwner || $canEdit) ? 'h-[78%]' : 'h-[92%]' ?> bg-gray-200 mx-auto p-2 overflow-y-auto">
+                    <div id="chatboxMessages" class="flex flex-col w-[98%] bg-gray-200 mx-auto p-2 overflow-y-auto">
+                        <!-- HTML rows are located in handleForms.php -->
                     </div>
                     <?php
                         if($isDocumentOwner || $canEdit) {
                     ?>
                         <form id="chatboxMessageBox">
-                            <div class="w-[98%] h-[10%] mx-auto">
+                            <div class="w-[98%] mx-auto">
                                 <textarea id="messageField" placeholder="Type your message here..." class="outline-none border-2 border-transparent w-full h-full bg-white p-2 resize-none focus:border-blue-500"></textarea>
                             </div>
 
@@ -153,17 +154,18 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         </div>
 
         <div id="manageDocumentAccess" class="fixed top-0 left-0 z-10 w-full h-full bg-black/55 hidden">
-            <div id="content" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-3/5 h-11/12 z-20 px-4 md:px-10 py-5 rounded-2xl bg-gray-900 text-white">
+            <div id="content" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-3/5 h-11/12 z-20 px-4 md:px-10 py-5 rounded-2xl bg-gray-900 text-white flex flex-col">
                 <h3 class="text-2xl font-semibold text-center">MANAGE DOCUMENT ACCESS</h3>
 
                 <h3 class="mt-5 text-2xl font-semibold">USERS WITH ACCESS</h3>
-                <div id="usersWithDocumentAccess" class="h-[280px] mt-2 mb-3 overflow-auto">
-                    <!-- HTML rows are located in handleForms.php -->
+                <div id="usersWithDocumentAccess" class="flex flex-col flex-grow min-h-[70px] mt-2 mb-3 overflow-auto">
+                    <!-- HTML rows -->
                 </div>
-                
-                <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-xl bg-white px-3 py-1 text-black">
-                <div id="searchResults" class="h-[240px] md:h-[320px] m-2 overflow-auto">
-                    <!-- HTML rows are located in handleForms.php -->
+
+                <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-lg bg-white px-3 py-1 text-black">
+
+                <div id="searchResults" class="flex flex-col flex-grow min-h-[45px] m-2 overflow-auto">
+                    <!-- HTML rows -->
                 </div>
 
                 <button onclick="closeDocumentAccessManagementModal()" class="border border-white w-full rounded-2xl px-4 py-1 text-lg hover:cursor-pointer hover:scale-105 hover:bg-gray-800 duration-200">Close</button>
@@ -175,9 +177,33 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         <script src="quillScript.js"></script>
 
         <script>
+            function adjustDocumentUIHeight() {
+                if ($(window).width() >= 768) {
+                    var viewportHeight = $(window).height();
+                    var headerHeight = $('#header').outerHeight();
+                    var toolbarHeight = $('#toolbar').outerHeight();
+                    var chatboxMessageBoxHeight = $('#chatboxMessageBox').outerHeight();
+
+                    var editorHeight = viewportHeight - headerHeight - toolbarHeight - 2;
+                    var chatboxHeight = viewportHeight - headerHeight - 24;
+                    var chatboxDisplayMessagesHeight = viewportHeight - headerHeight - chatboxMessageBoxHeight - 80;
+
+                    $('#editor-container').height(editorHeight);
+                    $('#chatbox').height(chatboxHeight);
+                    $('#chatboxMessages').css('max-height', chatboxDisplayMessagesHeight + 'px');
+                } else {
+                    $('#editor-container').css('height', 'auto');
+                    $('#chatbox').css('height', 'auto');
+                }
+            }
+
             $(document).ready(function() {
                 updateChatboxMessages();
                 updateSharedUsers();
+                adjustDocumentUIHeight();
+            });
+            $(window).on('resize', function() {
+                adjustDocumentUIHeight();
             });
         </script>
 
