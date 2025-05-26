@@ -431,7 +431,8 @@
         $executeQuery = $statement -> execute([$userId, $documentId]);
         
         if($executeQuery) {
-            return $statement -> fetch();
+            // elvis operator because this will return null if docs isn't shared to user in the first place
+            return $statement -> fetch() ?: ['can_edit' => 0];
         } else {
             return "error";
         }

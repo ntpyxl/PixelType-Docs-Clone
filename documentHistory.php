@@ -10,13 +10,14 @@ $isAdmin = false;
 $canEdit = false;
 if($_SESSION['user_id'] == getDocumentOwner($pdo, $_GET['document_id'])['user_owner']) {
     $isDocumentOwner = true;
+} else {
+    if(getUserDocAccessLevel($pdo, $_SESSION['user_id'], $_GET['document_id'])['can_edit'] == 1) {
+        $canEdit = true;
+    }
 }
 if($_SESSION['user_role'] == "ADMIN") {
     $isAdmin = true;
 }
-if(getUserDocAccessLevel($pdo, $_SESSION['user_id'], $_GET['document_id'])['can_edit'] == 1) {
-        $canEdit = true;
-    }
 
 if(!$isDocumentOwner && !$isAdmin && !$canEdit) {
     header("Location: document.php?document_id=" . $_GET['document_id']);
