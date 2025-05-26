@@ -12,7 +12,8 @@
         $execute_accQuery = $accStatement -> execute([$firstname, $lastname]);
 
         if($execute_uacQuery && $execute_accQuery) {
-            logAction($pdo, "CREATED", $pdo -> lastInsertId(), $pdo -> lastInsertId(), "ACCOUNT", $pdo -> lastInsertId(), "Created an account");
+            $lastInsertID = $pdo -> lastInsertId();
+            logAction($pdo, "CREATED", $lastInsertID, $lastInsertID, "ACCOUNT", $lastInsertID, "Created an account");
             return "accountRegistered";
         } else {
             return "error";
@@ -77,9 +78,11 @@
         $statement = $pdo -> prepare($query);
         $executeQuery = $statement -> execute([$userOwner]);
 
+        
         if ($executeQuery) {
-            logAction($pdo, "CREATED", $_SESSION['user_id'], $pdo -> lastInsertId(), "DOCUMENT", $_SESSION['user_id'], "Created a new blank document");
-            return ["blankDocumentCreated", $pdo -> lastInsertId()];
+            $lastInsertID = $pdo -> lastInsertId();
+            logAction($pdo, "CREATED", $_SESSION['user_id'], $lastInsertID, "DOCUMENT", $_SESSION['user_id'], "Created a new blank document");
+            return ["blankDocumentCreated", $lastInsertID];
         } else {
             return ["error"];
         }
@@ -262,7 +265,8 @@
         $executeQuery = $statement -> execute([$documentId, $userId, $message]);
 
         if($executeQuery) {
-            logAction($pdo, "CREATED", $_SESSION['user_id'], $pdo -> lastInsertId(), "MESSAGE", $_SESSION['user_id'], 'Sent "' . $message . '"');
+            $lastInsertID = $pdo -> lastInsertId();
+            logAction($pdo, "CREATED", $_SESSION['user_id'], $lastInsertID, "MESSAGE", $_SESSION['user_id'], 'Sent "' . $message . '"');
             return "messageSent";
         } else {
             return "error";

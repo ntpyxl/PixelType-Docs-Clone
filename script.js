@@ -153,7 +153,6 @@ function createNewDocument(user_id) {
         success: function(data) {
             const parsedData = JSON.parse(data);
             if(parsedData[0].trim() == "blankDocumentCreated") {
-
                 window.location.href = "document.php?document_id=" + parsedData[1];
             } else {
                 changeMessage(
