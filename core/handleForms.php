@@ -5,12 +5,12 @@
     if(isset($_POST['accountRegistrationRequest'])) {
         $username = $_POST['username'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $verifyPassword = $_POST['verifyPassword']; 
+        $verifyPassword = $_POST['verify_password']; 
         $firstname = $_POST['firstname'];
         $lastname = $_POST['lastname'];
 
         if(checkUsernameExistence($pdo, $username) == "usernameNotExisting") {
-            if($_POST['password'] == $_POST['verifyPassword']) {
+            if($_POST['password'] == $verifyPassword) {
                 $function = registerAccount($pdo, $username, $password, $firstname, $lastname);
                 echo $function;
             } else {
@@ -191,15 +191,15 @@
     }
 
     if(isset($_POST['shareDocumentToUserRequest'])) {
-        $userId = $_POST['userId'];
-        $documentId = $_POST['documentId'];
+        $userId = $_POST['user_id'];
+        $documentId = $_POST['document_id'];
 
         shareDocumentToUser($pdo, $userId, $documentId);
     }
 
     if(isset($_POST['revokeDocumentToUserRequest'])) {
-        $userId = $_POST['userId'];
-        $documentId = $_POST['documentId'];
+        $userId = $_POST['user_id'];
+        $documentId = $_POST['document_id'];
 
         revokeDocumentToUser($pdo, $userId, $documentId);
     }
