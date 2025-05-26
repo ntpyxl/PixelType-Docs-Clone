@@ -156,14 +156,12 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         <div id="manageDocumentAccess" class="fixed top-0 left-0 z-10 w-full h-full bg-black/55 hidden">
             <div id="content" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-3/5 h-11/12 z-20 px-4 md:px-10 py-5 rounded-2xl bg-gray-900 text-white flex flex-col">
                 <h3 class="text-2xl font-semibold text-center">MANAGE DOCUMENT ACCESS</h3>
-
                 <h3 class="mt-5 text-2xl font-semibold">USERS WITH ACCESS</h3>
                 <div id="usersWithDocumentAccess" class="flex flex-col flex-grow min-h-[70px] mt-2 mb-3 overflow-auto">
                     <!-- HTML rows -->
                 </div>
 
-                <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full h-[38px] rounded-lg bg-white px-3 py-1 text-black">
-
+                <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full min-h-[38px] rounded-lg bg-white px-3 py-1 text-black">
                 <div id="searchResults" class="flex flex-col flex-grow min-h-[45px] m-2 overflow-auto">
                     <!-- HTML rows -->
                 </div>

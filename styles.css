@@ -522,6 +522,9 @@
   .max-h-\[500px\] {
     max-height: 500px;
   }
+  .min-h-\[38px\] {
+    min-height: 38px;
+  }
   .min-h-\[45px\] {
     min-height: 45px;
   }

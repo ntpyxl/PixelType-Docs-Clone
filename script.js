@@ -8,7 +8,7 @@ $('#accountRegistrationForm').on('submit', function(event) {
     const formData = {
         username: $('#usernameField').val(),
         password: $('#passwordField').val(),
-        verifyPassword: $('#verifyPasswordField').val(),
+        verify_password: $('#verifyPasswordField').val(),
         firstname: $('#firstnameField').val(),
         lastname: $('#lastnameField').val(),
         accountRegistrationRequest: 1
@@ -220,8 +220,8 @@ function updateSearchedUsers() {
 
 function shareDocumentToUser(userId) {
     const data = {
-        userId: userId,
-        documentId: documentId,
+        user_id: userId,
+        document_id: documentId,
         shareDocumentToUserRequest: 1
     }
 
@@ -254,8 +254,8 @@ function updateSharedUsers() {
 
 function revokeDocumentToUser(userId) {
     const data = {
-        userId: userId,
-        documentId: documentId,
+        user_id: userId,
+        document_id: documentId,
         revokeDocumentToUserRequest: 1
     }
 
