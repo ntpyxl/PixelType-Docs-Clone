@@ -126,9 +126,9 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
             <?php
             if($isDocumentOwner || $isAdmin || $canEdit) {
             ?>
-                <div id="chatbox" class="bg-gray-900 w-full h-full lg:w-[25%] mx-auto lg:mx-0 p-3 space-y-2">
+                <div id="chatbox" class="flex flex-col bg-gray-900 w-full lg:w-[25%] mx-auto lg:mx-0 p-3 space-y-2">
                     <h3 class="text-2xl font-semibold text-center text-white">CHATBOX</h3>
-                    <div id="chatboxMessages" class="flex flex-col w-[98%] bg-gray-200 mx-auto p-2 overflow-y-auto">
+                    <div id="chatboxMessages" class="flex flex-col flex-grow w-[98%] bg-gray-200 mx-auto p-2 overflow-y-auto">
                         <!-- HTML rows are located in handleForms.php -->
                     </div>
                     <?php
@@ -154,15 +154,15 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         </div>
 
         <div id="manageDocumentAccess" class="fixed top-0 left-0 z-10 w-full h-full bg-black/55 hidden">
-            <div id="content" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-3/5 h-11/12 z-20 px-4 md:px-10 py-5 rounded-2xl bg-gray-900 text-white flex flex-col">
+            <div id="content" class="flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-3/5 h-11/12 z-20 px-4 md:px-10 py-5 rounded-2xl bg-gray-900 text-white">
                 <h3 class="text-2xl font-semibold text-center">MANAGE DOCUMENT ACCESS</h3>
                 <h3 class="mt-5 text-2xl font-semibold">USERS WITH ACCESS</h3>
-                <div id="usersWithDocumentAccess" class="flex flex-col flex-grow min-h-[70px] mt-2 mb-3 overflow-auto">
+                <div id="usersWithDocumentAccess" class="flex flex-col flex-grow min-h-[70px] max-h-[280px] mt-2 mb-3 overflow-auto">
                     <!-- HTML rows -->
                 </div>
 
                 <input type="text" id="searchUserField" placeholder="Add a user" class="outline-none border-2 border-transparent focus:border-blue-500 w-full min-h-[38px] rounded-lg bg-white px-3 py-1 text-black">
-                <div id="searchResults" class="flex flex-col flex-grow min-h-[45px] m-2 overflow-auto">
+                <div id="searchResults" class="flex flex-col flex-grow min-h-[45px] max-h-[270px] md:max-h-[315px] m-2 overflow-auto">
                     <!-- HTML rows -->
                 </div>
 
@@ -175,33 +175,25 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         <script src="quillScript.js"></script>
 
         <script>
-            function adjustDocumentUIHeight() {
-                if ($(window).width() >= 768) {
-                    var viewportHeight = $(window).height();
-                    var headerHeight = $('#header').outerHeight();
-                    var toolbarHeight = $('#toolbar').outerHeight();
-                    var chatboxMessageBoxHeight = $('#chatboxMessageBox').outerHeight();
+            function adjustDocEditorHeight() {
+                var viewportHeight = $(window).height();
+                var headerHeight = $('#header').outerHeight();
+                var toolbarHeight = $('#toolbar').outerHeight();
 
-                    var editorHeight = viewportHeight - headerHeight - toolbarHeight - 2;
-                    var chatboxHeight = viewportHeight - headerHeight - 24;
-                    var chatboxDisplayMessagesHeight = viewportHeight - headerHeight - chatboxMessageBoxHeight - 80;
+                var editorHeight = viewportHeight - headerHeight - toolbarHeight - 2;
+                var chatboxHeight = viewportHeight - headerHeight - 24;
 
-                    $('#editor-container').height(editorHeight);
-                    $('#chatbox').height(chatboxHeight);
-                    $('#chatboxMessages').css('max-height', chatboxDisplayMessagesHeight + 'px');
-                } else {
-                    $('#editor-container').css('height', 'auto');
-                    $('#chatbox').css('height', 'auto');
-                }
+                $('#editor-container').height(editorHeight);
+                $('#chatbox').height(chatboxHeight);
             }
 
             $(document).ready(function() {
                 updateChatboxMessages();
                 updateSharedUsers();
-                adjustDocumentUIHeight();
+                adjustDocEditorHeight();
             });
             $(window).on('resize', function() {
-                adjustDocumentUIHeight();
+                adjustDocEditorHeight();
             });
         </script>
 
