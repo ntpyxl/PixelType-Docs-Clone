@@ -198,7 +198,7 @@ if(!$isDocumentOwner && !$isAdmin && !$isDocumentShared) {
         </script>
 
         <?php
-        if(($isAdmin && !$canEdit) || $isDocumentShared) {
+        if(($isAdmin && !$canEdit) || ($isDocumentShared && !$canEdit)) {
         ?>
             <script>
                 quill.enable(false);
