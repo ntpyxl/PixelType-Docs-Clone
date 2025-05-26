@@ -15,10 +15,13 @@ const rawContent = document.getElementById('loadedDocumentContentData').innerTex
 quill.root.innerHTML = rawContent;
 
 let saveDocContentTimeout;
-quill.on('text-change', function() {
-    if(isInitializing) {
-        return;
-    }
+quill.on('text-change', function(delta) {
+    if (isInitializing) { return; }
+
+    const hasTextChange = delta.ops.some(op => {
+        return (op.insert && typeof op.insert === 'string') || op.delete;
+    });
+    if (!hasTextChange) { return; }
 
     clearTimeout(saveDocContentTimeout);
     saveDocContentTimeout = setTimeout(function() {
